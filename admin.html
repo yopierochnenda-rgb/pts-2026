@@ -3,64 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN MONITORING - RULES</title>
+    <title>ADMIN MONITORING - RULES BRAND</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.autotable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; }
+        :root { --primary: #1a73e8; --success: #1e8e3e; --danger: #d93025; --dark: #202124; }
+        body { font-family: 'Poppins', sans-serif; background: #f8f9fa; margin: 0; padding: 20px; color: var(--dark); }
+        
         .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: white; padding: 20px; border-radius: 15px; text-align: center; border-bottom: 5px solid #1a73e8; }
-        .controls { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; }
-        th { background: #1a73e8; color: white; padding: 15px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .badge { padding: 4px 8px; border-radius: 5px; font-weight: bold; font-size: 11px; }
+        .stat-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; border-bottom: 5px solid #ddd; }
+        .stat-card h3 { margin: 0; font-size: 14px; color: #666; }
+        .stat-card .val { font-size: 32px; font-weight: 800; display: block; margin: 5px 0; }
+        .card-blue { border-color: var(--primary); }
+        .card-green { border-color: var(--success); }
+        .card-red { border-color: var(--danger); }
+
+        .controls { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        select, input { padding: 10px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-weight: 600; }
+        
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; color: white; }
+        .btn-refresh { background: var(--primary); }
+        .btn-excel { background: var(--success); }
+        .btn-pdf { background: #5f6368; }
+
+        .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f1f3f4; padding: 15px; text-align: left; font-size: 13px; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        
+        .badge { padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; }
         .lulus { background: #e6ffed; color: #1e8e3e; }
         .remed { background: #fff0f0; color: #d93025; }
-        .btn { padding: 10px 15px; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; }
+        .nyontek { background: #000; color: #fff; }
     </style>
 </head>
 <body>
-    <h2>RULES MONITORING</h2>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin:0">RULES MONITORING <span style="font-weight: 400; font-size: 14px;">(Target 240 Siswa)</span></h2>
+        <div id="clock" style="font-weight: bold; color: var(--primary);"></div>
+    </div>
+
     <div class="dashboard">
-        <div class="stat-card"><h3>TOTAL SISWA</h3><span id="stat-total" style="font-size:30px; font-weight:800;">240</span></div>
-        <div class="stat-card" style="border-color:green"><h3>PARANTOS BÉRÉS</h3><span id="stat-beres" style="font-size:30px; font-weight:800; color:green">0</span></div>
-        <div class="stat-card" style="border-color:red"><h3>TEU ACAN</h3><span id="stat-belum" style="font-size:30px; font-weight:800; color:red">0</span></div>
+        <div class="stat-card card-blue">
+            <h3>TOTAL SISWA</h3>
+            <span class="val" id="stat-total">240</span>
+        </div>
+        <div class="stat-card card-green">
+            <h3>PARANTOS BÉRÉS</h3>
+            <span class="val" id="stat-beres">0</span>
+        </div>
+        <div class="stat-card card-red">
+            <h3>TEU ACAN</h3>
+            <span class="val" id="stat-belum">240</span>
+        </div>
     </div>
+
     <div class="controls">
-        <select id="filter-kelas" onchange="muatData()"><option value="">-- Sadaya Kelas --</option><option value="9A">9A</option><option value="9B">9B</option></select>
-        <button class="btn" style="background:#1a73e8" onclick="muatData()">REFRESH</button>
-        <button class="btn" style="background:#1e8e3e" onclick="exportExcel()">EXCEL</button>
-        <button class="btn" style="background:#5f6368" onclick="exportPDF()">PDF</button>
+        <select id="filter-kelas" onchange="filterData()">
+            <option value="">-- Sadaya Kelas --</option>
+            <option value="9A">Kelas 9A</option>
+            <option value="9B">Kelas 9B</option>
+            <option value="9C">Kelas 9C</option>
+            <option value="9D">Kelas 9D</option>
+            <option value="9E">Kelas 9E</option>
+            <option value="9F">Kelas 9F</option>
+            <option value="9G">Kelas 9G</option>
+            <option value="9H">Kelas 9H</option>
+        </select>
+        
+        <button class="btn btn-refresh" onclick="muatData()">REFRESH DATA</button>
+        
+        <div style="margin-left: auto; display: flex; gap: 10px;">
+            <button class="btn btn-excel" onclick="exportExcel()">SIMPEN EXCEL</button>
+            <button class="btn btn-pdf" onclick="exportPDF()">SIMPEN PDF</button>
+        </div>
     </div>
-    <table>
-        <thead><tr><th>WAKTU</th><th>NAMI</th><th>KELAS</th><th>SKOR</th><th>STATUS</th><th>CHEAT</th></tr></thead>
-        <tbody id="tbody"></tbody>
-    </table>
+
+    <div class="table-container">
+        <table id="table-rekap">
+            <thead>
+                <tr>
+                    <th>WAKTU</th>
+                    <th>NAMI SISWA</th>
+                    <th>KELAS</th>
+                    <th>SKOR</th>
+                    <th>STATUS</th>
+                    <th>CHEAT</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+                <tr><td colspan="6" style="text-align:center; padding:50px;">Klik Refresh pikeun nampilkeun data...</td></tr>
+            </tbody>
+        </table>
+    </div>
 
     <script>
+        // URL SCRIPT AKANG ANU PANGANYARNA
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLXeaFaQayA7ZL0mQ4-KvJX_HBcl5yQ6dUoOkl96YglLJjutd_QzXzmNo51cG5LBVu_Q/exec";
-        function muatData() {
-            $('#tbody').html('<tr><td colspan="6" style="text-align:center">Nuju nyandak data...</td></tr>');
-            $.getJSON(SCRIPT_URL + "?action=getRekap", function(data) {
-                let h = ""; let filtered = data.slice(1);
-                let filterKelas = $('#filter-kelas').val();
-                let count = 0;
-                filtered.forEach(row => {
-                    if(filterKelas && row[3] !== filterKelas) return;
-                    count++;
-                    let skor = parseInt(row[4]);
-                    h += `<tr><td>${new Date(row[0]).toLocaleTimeString()}</td><td><b>${row[1]}</b></td><td>${row[3]}</td><td><b>${skor}</b></td><td><span class="badge ${skor>=85?'lulus':'remed'}">${skor>=85?'LULUS':'REMED'}</span></td><td>${row[5]>0?'⚠️ '+row[5]:'✅'}</td></tr>`;
-                });
-                $('#tbody').html(h);
-                $('#stat-beres').text(count); $('#stat-belum').text(240 - count);
-            });
+        let dataRekapRaw = [];
+
+        async function muatData() {
+            $('.btn-refresh').text('Nuju Nyandak...').prop('disabled', true);
+            try {
+                const resp = await fetch(SCRIPT_URL + "?action=getRekap");
+                const data = await resp.json();
+                dataRekapRaw = data.slice(1); // Cabut Header
+                renderTabel(dataRekapRaw);
+            } catch (e) {
+                alert("Gagal nyandak data! Pastikeun internet lancar.");
+            }
+            $('.btn-refresh').text('REFRESH DATA').prop('disabled', false);
         }
-        function exportExcel() { let wb = XLSX.utils.table_to_book(document.querySelector('table')); XLSX.writeFile(wb, "Rekap_Rules.xlsx"); }
-        function exportPDF() { const { jsPDF } = window.jspdf; let doc = new jsPDF(); doc.autoTable({ html: 'table' }); doc.save("Rekap_Rules.pdf"); }
+
+        function renderTabel(data) {
+            let h = "";
+            let filterKelas = $('#filter-kelas').val();
+            let countBeres = 0;
+
+            data.forEach(row => {
+                // Filter dumasar kelas nu dipilih
+                if(filterKelas && row[3] !== filterKelas) return;
+
+                countBeres++;
+                let skor = parseInt(row[4]);
+                let cheat = parseInt(row[5]);
+                let badgeClass = (skor >= 85) ? 'lulus' : 'remed';
+                let statusText = (skor >= 85) ? 'LULUS' : 'REMEDIAL';
+
+                h += `<tr>
+                    <td>${new Date(row[0]).toLocaleTimeString()}</td>
+                    <td><b>${row[1]}</b><br><small>NIS: ${row[2]}</small></td>
+                    <td>${row[3]}</td>
+                    <td style="font-size:18px; font-weight:800">${skor}</td>
+                    <td><span class="badge ${badgeClass}">${statusText}</span></td>
+                    <td>${cheat > 0 ? `<span class="badge nyontek">⚠️ ${cheat}X</span>` : '✅'}</td>
+                </tr>`;
+            });
+
+            if(h === "") h = '<tr><td colspan="6" style="text-align:center; padding:30px;">Teu aya data pikeun kelas ieu.</td></tr>';
+            
+            $('#tbody').html(h);
+            
+            // Update Statistik (Upami kelas difilter, statistik nuturkeun jumlah nu difilter)
+            $('#stat-beres').text(countBeres);
+            $('#stat-belum').text(240 - countBeres);
+        }
+
+        function filterData() {
+            renderTabel(dataRekapRaw);
+        }
+
+        function exportExcel() {
+            let wb = XLSX.utils.table_to_book(document.getElementById('table-rekap'), {sheet: "Rekap Nilai"});
+            XLSX.writeFile(wb, "REKAP_RULES_EXAM.xlsx");
+        }
+
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            let doc = new jsPDF();
+            doc.text("REKAP NILAI PTS 2026 - RULES BRAND", 14, 15);
+            doc.autoTable({ html: '#table-rekap', margin: { top: 25 } });
+            doc.save("REKAP_RULES_EXAM.pdf");
+        }
+
+        setInterval(() => {
+            $('#clock').text(new Date().toLocaleTimeString());
+        }, 1000);
+
         $(document).ready(muatData);
     </script>
 </body>
