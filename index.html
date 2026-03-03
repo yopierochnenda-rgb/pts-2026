@@ -17,7 +17,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Poppins', sans-serif; }
 
-        /* NOTIF PELANGGARAN PERMANENT */
+        /* NOTIF PELANGGARAN PERMANENT (TETEP AYA MUN NYONTEK) */
         #notif-pelanggaran {
             position: fixed; top: 0; left: 0; width: 100%; background: var(--danger);
             color: white; text-align: center; padding: 12px; font-weight: bold;
@@ -25,7 +25,7 @@
             box-shadow: 0 4px 15px rgba(255,0,0,0.5);
         }
 
-        /* LOGIN SCREEN */
+        /* LOGIN SCREEN PRO */
         #login-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: var(--bg-gradient); z-index: 2001; padding: 20px; 
@@ -42,7 +42,6 @@
         .btn-pro {
             background: var(--primary); color: white; border: none; padding: 18px;
             width: 100%; border-radius: 15px; font-weight: 600; font-size: 16px; cursor: pointer;
-            box-shadow: 0 8px 15px rgba(26,115,232,0.2);
         }
 
         /* PDF AREA */
@@ -54,13 +53,11 @@
             position: fixed; bottom: 25px; right: 20px; z-index: 999;
             background: var(--danger); color: white; border: 2px solid white;
             padding: 15px 25px; border-radius: 50px; font-weight: bold; display: none;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
         .sidebar {
             position: fixed; bottom: -100%; left: 0; width: 100%; height: 60vh;
             background: white; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 30px 30px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column;
+            border-radius: 30px 30px 0 0; display: flex; flex-direction: column;
         }
         .sidebar.open { bottom: 0; }
         .nav-grid { display: flex; overflow-x: auto; padding: 15px; gap: 10px; background: #fff; border-bottom: 1px solid #ddd; }
@@ -72,6 +69,7 @@
         .opt-btn { flex: 1; padding: 20px 0; border: 2px solid #ddd; border-radius: 15px; text-align: center; font-weight: bold; font-size: 22px; background: #fff; }
         .opt-btn.selected { background: var(--primary); color: white; }
 
+        /* HASIL AKHIR */
         #result-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: white; z-index: 6000; display: none; 
@@ -81,16 +79,16 @@
 </head>
 <body>
 
-    <div id="notif-pelanggaran">⚠️ PELANGGARAN! AKTIVITAS ANJEUN KACATET KU GURU!</div>
+    <div id="notif-pelanggaran">⚠️ PELANGGARAN KADETEKSI! AKTIVITAS ANJEUN KACATET KU GURU!</div>
 
     <div id="login-overlay">
         <div class="login-card">
-            <h1 style="color:var(--primary); margin-top:0; letter-spacing:-1px;">PTS 2026</h1>
+            <h1 style="color:var(--primary); margin-top:0;">PTS 2026</h1>
             <p style="font-size:14px; color:#666; margin-bottom:25px;">Sistem Ujian Online Aman</p>
 
             <div id="box-login">
                 <input type="number" id="input-nis" placeholder="Lebetkeun NIS..." inputmode="numeric">
-                <button class="btn-pro" onclick="cekSiswa()" id="btn-cek">LOGIN</button>
+                <button class="btn-pro" onclick="cekSiswa()" id="btn-cek">MASUK SISTEM</button>
             </div>
 
             <div id="box-konfirmasi" style="display:none;">
@@ -110,7 +108,7 @@
 
     <div id="result-overlay">
         <h2 style="color:var(--success); margin:0;">UJIAN RENGSE!</h2>
-        <div style="font-size:60px; font-weight:800; color:var(--primary); margin:20px 0;" id="res-nilai">0</div>
+        <div style="font-size:60px; font-weight:800; color:var(--primary); margin:20px 0;" id="res-peunteun">0</div>
         <p style="font-size:18px;"><b id="res-nami"></b></p>
         <p id="res-msg" style="color:red; font-weight:bold; margin-top:10px;"></p>
         <button class="btn-pro" onclick="location.reload()" style="max-width:220px; margin-top:20px;">KALUAR SISTEM</button>
@@ -123,7 +121,7 @@
     <button id="btn-toggle-panel" onclick="togglePanel()">📝 JAWAB</button>
 
     <div class="sidebar" id="panel-jawaban">
-        <div style="height:45px; display:flex; align-items:center; justify-content:center; background:#f8f9fa; border-radius:30px 30px 0 0;" onclick="togglePanel()">
+        <div style="height:45px; display:flex; align-items:center; justify-content:center;" onclick="togglePanel()">
             <div style="width:50px; height:5px; background:#ccc; border-radius:3px;"></div>
         </div>
         <div class="nav-grid" id="nav-grid"></div>
@@ -146,7 +144,7 @@
                     dataMurid = res; dataMurid.nis = nis;
                     $('#box-login').hide(); $('#txt-nami').text(res.nami); $('#box-konfirmasi').fadeIn();
                 } else {
-                    alert("NIS Teu Kapendak!"); $('#btn-cek').prop('disabled', false).text("LOGIN");
+                    alert("NIS Teu Kapendak!"); $('#btn-cek').prop('disabled', false).text("MASUK SISTEM");
                 }
             });
         }
@@ -159,10 +157,9 @@
             $('#login-overlay').fadeOut();
             $('#btn-toggle-panel').fadeIn();
             
-            // LINK PDF OTOMATIS PREVIEW (LANGSUNG TAMPIL DI HP)
+            // PDF AUTO-VIEW TANPA KLIK
             const pdfFileUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mp}.pdf`;
             const finalPdfUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfFileUrl)}&embedded=true`;
-            
             $('#pdf-viewer').attr('src', finalPdfUrl);
 
             let navH = '', soalH = '';
@@ -197,12 +194,12 @@
             if(n < totalSoal) { setTimeout(() => { togglePanel(); buka(n + 1); }, 400); }
         }
 
-        // --- NOTIF PERMANENT ---
+        // --- NOTIF PERMANENT MUN NYONTEK ---
         window.onblur = function() {
             if(!$('#login-overlay').is(':visible') && !$('#result-overlay').is(':visible')) {
                 cheatCount++;
-                $('#notif-pelanggaran').slideDown(); // Bar beureum munjul terus
-                alert("⚠️ PERHATOSAN!\nUlah muka aplikasi sanes atanapi pindah tab!\nAktivitas anjeun kacatet ku guru.");
+                $('#notif-pelanggaran').slideDown();
+                alert("⚠️ PELANGGARAN!\nUlah muka aplikasi sanes atanapi pindah tab!\nAktivitas anjeun kacatet ku guru.");
             }
         };
 
@@ -212,16 +209,24 @@
             for(let i=1; i<=totalSoal; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
             
             $('#btn-submit').prop('disabled', true).text("Nuju Ngirim...");
+            
             $.post(SCRIPT_URL, {
                 nami: dataMurid.nami, nis: dataMurid.nis, kelas: dataMurid.kelas,
                 mapel: $('#mapel').val(), jawaban: jwb, cheat: cheatCount
             }, function(res) {
+                // UPDATE: Nganggo 'peunteun' dumasar kana koding Code.gs Akang
+                let pnt = (res && res.peunteun !== undefined) ? res.peunteun : "0";
+                
                 $('#res-nami').text(dataMurid.nami);
-                $('#res-nilai').text(res.nilai || "0");
+                $('#res-peunteun').text(pnt); 
                 $('#res-msg').text(`Jumlah Pelanggaran: ${cheatCount} kali.`);
+                
                 $('#result-overlay').fadeIn();
                 $('#notif-pelanggaran').hide();
                 if(document.exitFullscreen) document.exitFullscreen();
+            }).fail(function() {
+                alert("Gagal ngirim! Cek sinyal internet.");
+                $('#btn-submit').prop('disabled', false).text("KIRIM JAWABAN");
             });
         }
     </script>
