@@ -7,177 +7,191 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #1a73e8; --bg: #f8f9fa; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --primary: #1a73e8; --bg: #f8f9fa; --danger: #d93025; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- TAMPILAN DESKTOP (Kénca-Katuhu) --- */
-        .pdf-container { flex: 1; background: #525659; position: relative; border-right: 2px solid #ddd; display: flex; flex-direction: column; overflow: hidden; }
-        iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
-        .sidebar { width: 380px; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; z-index: 10; }
+        /* AREA PDF */
+        .pdf-container { width: 100%; height: 100vh; background: #525659; position: relative; z-index: 1; }
+        iframe { width: 100%; height: 100%; border: none; }
 
-        /* --- TAMPILAN KHUSUS HP (STICKY PANEL) --- */
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .pdf-container { height: 60vh; width: 100%; position: relative; border-right: none; border-bottom: 4px solid var(--primary); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-            .sidebar { width: 100%; height: 40vh; position: fixed; bottom: 0; border-radius: 20px 20px 0 0; }
-            
-            /* Nomer Soal tiasa di-geser ka gigir (Horizontal Scroll) */
-            .nav-grid { display: flex !important; overflow-x: auto; white-space: nowrap; padding: 8px !important; gap: 6px; background: #eee; border-bottom: 1px solid #ddd; }
-            .nav-btn { min-width: 45px; flex: 0 0 auto; padding: 8px 0 !important; font-size: 13px !important; }
-            
-            /* Pilihan A-E ngajajar ka gigir */
-            .options { flex-direction: row !important; justify-content: space-around; padding: 10px !important; gap: 5px !important; margin-top: 5px !important; }
-            .opt-btn { flex: 1; padding: 12px !important; font-size: 18px !important; margin: 0 !important; border-radius: 8px !important; }
-            
-            .header { padding: 8px !important; font-size: 11px !important; }
-            .jawaban-area { padding: 10px 0 !important; }
-            h2 { font-size: 15px !important; margin: 0 0 5px 0 !important; }
-            .footer { padding: 8px 15px !important; }
+        /* FLOATING BUTTON */
+        #btn-toggle-panel {
+            position: fixed; bottom: 20px; right: 20px; z-index: 999;
+            background: var(--danger); color: white; border: none; padding: 15px 25px;
+            border-radius: 50px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            cursor: pointer; display: none;
         }
 
-        /* STYLE UMUM */
-        .header { padding: 15px; background: var(--primary); color: white; text-align: center; }
-        #login-form { padding: 20px; overflow-y: auto; height: 100%; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
-        #ujian-container { display: none; flex-direction: column; height: 100%; }
-        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; background: #f1f3f4; border-bottom: 1px solid #ddd; }
-        .nav-btn { background: white; border: 1px solid #ccc; border-radius: 6px; text-align: center; cursor: pointer; font-weight: 600; }
+        /* PANEL JAWABAN SLIDE-UP */
+        .sidebar {
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 60vh;
+            background: white; z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 25px 25px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column;
+        }
+        .sidebar.open { bottom: 0; }
+
+        .panel-handle { width: 100%; height: 40px; background: #f1f3f4; border-radius: 25px 25px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .handle-bar { width: 40px; height: 4px; background: #ccc; border-radius: 2px; }
+
+        /* NAVIGASI NOMER */
+        .nav-grid { display: flex; overflow-x: auto; padding: 10px; gap: 8px; background: #fff; border-bottom: 1px solid #ddd; }
+        .nav-btn { min-width: 42px; height: 42px; background: #f1f3f4; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex: 0 0 auto; font-size: 14px; }
         .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .nav-btn.filled { background: #ceead6; border-color: #34a853; }
-        .jawaban-area { flex: 1; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .soal-box { display: none; width: 100%; text-align: center; }
-        .soal-box.active { display: block; }
-        .options { display: flex; flex-direction: column; gap: 10px; padding: 0 40px; }
-        .opt-btn { padding: 15px; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 20px; transition: 0.2s; }
+        .nav-btn.filled { background: #34a853; color: white; border-color: #2d9249; }
+
+        /* JAWABAN */
+        .jawaban-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .options { display: flex; gap: 10px; width: 100%; max-width: 400px; }
+        .opt-btn { flex: 1; padding: 18px; border: 2px solid #ddd; border-radius: 12px; text-align: center; font-weight: bold; font-size: 20px; background: #fff; transition: 0.2s; }
         .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
-        .footer { padding: 15px; border-top: 1px solid #eee; background: white; }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .aturan-box { background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; font-size: 13px; margin-top: 10px; text-align: left; }
+
+        /* LOGIN & RESULT OVERLAY */
+        #login-overlay, #result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+        input, select { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
+        .btn-green { background: #1e8e3e; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .btn-green:disabled { background: #ccc; cursor: not-allowed; }
+
+        .score-box { font-size: 60px; font-weight: bold; color: var(--primary); margin: 20px 0; }
     </style>
 </head>
 <body>
 
-    <div class="pdf-container">
-        <div id="pdf-msg" style="color:white; text-align:center; padding: 20px; margin-top:20%;">
-            <p>Soal PDF nembongan di dieu saatos Login.</p>
+    <div id="login-overlay">
+        <h2 style="text-align:center; color:var(--primary); margin-top:0;">PTS 2026 - RULES</h2>
+        <div id="box-login">
+            <input type="number" id="input-nis" placeholder="Lebetkeun NIS...">
+            <button class="btn-green" onclick="cekSiswa()" id="btn-cek">LOGIN</button>
         </div>
-        <iframe id="pdf-viewer" style="display:none;"></iframe>
+        <div id="box-konfirmasi" style="display:none; text-align:center;">
+            <p>Wilujeng sumping, <br><b id="txt-nami" style="font-size:18px;"></b></p>
+            <select id="mapel" onchange="$('#btn-mulai').prop('disabled', false)">
+                <option value="">-- Pilih Mapel --</option>
+                <option value="SUNDA">Basa Sunda</option>
+                <option value="SENI">Seni Budaya</option>
+            </select>
+            <button id="btn-mulai" class="btn-green" disabled onclick="mulaiUjian()" style="margin-top:20px;">MIMITIAN UJIAN</button>
+        </div>
     </div>
 
-    <div class="sidebar">
-        <div id="login-form">
-            <div class="header" style="border-radius: 8px; margin-bottom: 10px;"><h2>PTS 2026</h2></div>
-            <div id="box-input-nis">
-                <p style="font-size: 14px; color: #666;">Lebetkeun NIS anjeun:</p>
-                <input type="number" id="input-nis" placeholder="Conto: 12345">
-                <button onclick="cekSiswa()" id="btn-cek">CEK DATA SISWA</button>
-            </div>
-            <div id="data-konfirmasi" style="display:none;">
-                <h3 id="txt-nami" style="margin:5px 0; color:#1a73e8;"></h3>
-                <p id="txt-kelas" style="margin:0; font-weight:bold;"></p>
-                <select id="mapel" onchange="tampilAturan()" style="margin-top:10px;">
-                    <option value="">-- Pilih Mapel --</option>
-                    <option value="SUNDA">Basa Sunda</option>
-                    <option value="SENI">Seni Budaya</option>
-                </select>
-                <div id="box-aturan" class="aturan-box" style="display:none;">
-                    <div id="teks-aturan"></div>
-                </div>
-                <button id="btn-mulai" onclick="mulaiUjian()" style="display:none; background:#1e8e3e; margin-top:15px; font-weight: bold;">MIMITIAN UJIAN</button>
-            </div>
-        </div>
+    <div id="result-overlay" style="display:none; text-align:center;">
+        <h2>UJIAN RENGSE!</h2>
+        <p>Hatur nuhun, <b id="res-nami"></b></p>
+        <div class="score-box" id="res-nilai">0</div>
+        <p id="res-msg"></p>
+        <button class="btn-green" onclick="location.reload()">KALUAR</button>
+    </div>
 
-        <div id="ujian-container">
-            <div class="header"><span id="info-header" style="font-size: 12px;"></span></div>
-            <div class="nav-grid" id="nav-grid"></div>
-            <div class="jawaban-area" id="jawaban-area"></div>
-            <div class="footer">
-                <button onclick="kirimJawaban()" id="btn-submit" style="background:#1e8e3e;">SUBMIT JAWABAN</button>
-            </div>
+    <div class="pdf-container">
+        <iframe id="pdf-viewer"></iframe>
+    </div>
+
+    <button id="btn-toggle-panel" onclick="togglePanel()">📝 EUSI JAWABAN</button>
+
+    <div class="sidebar" id="panel-jawaban">
+        <div class="panel-handle" onclick="togglePanel()"><div class="handle-bar"></div></div>
+        <div class="nav-grid" id="nav-grid"></div>
+        <div class="jawaban-area" id="jawaban-area"></div>
+        <div style="padding: 10px 20px 20px;">
+            <p id="msg-warning" style="color:red; font-size:11px; text-align:center; margin-bottom:5px;"></p>
+            <button onclick="kirimJawaban()" id="btn-submit" class="btn-green" disabled>KIRIM JAWABAN</button>
         </div>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPw-5z_k6simejXhQarFcNYbP07_rSxQvAhOR8Cucv2k5qJo5gcce4Nx7i8j7XKcchNQ/exec";
-        let cheat = 0;
-        let dataMurid = {};
+        let dataMurid = {}, cheatCount = 0, totalSoal = 25;
 
         function cekSiswa() {
             const nis = $('#input-nis').val();
-            if(!nis) return alert("Eusian NIS heula!");
+            if(!nis) return alert("Eusian NIS!");
             $('#btn-cek').prop('disabled', true).text("Mariksa...");
             $.getJSON(SCRIPT_URL + "?action=checkNIS&nis=" + nis, function(res) {
                 if(res.found) {
                     dataMurid = res; dataMurid.nis = nis;
-                    $('#box-input-nis').hide();
-                    $('#txt-nami').text(res.nami);
-                    $('#txt-kelas').text("Kelas: " + res.kelas);
-                    $('#data-konfirmasi').fadeIn();
+                    $('#box-login').hide(); $('#txt-nami').text(res.nami); $('#box-konfirmasi').show();
                 } else {
-                    alert("NIS teu kapendak!"); $('#btn-cek').prop('disabled', false).text("CEK DATA SISWA");
+                    alert("NIS Teu Kapendak!"); $('#btn-cek').prop('disabled', false).text("LOGIN");
                 }
             });
         }
 
-        function tampilAturan() {
-            const mp = $('#mapel').val();
-            if (!mp) { $('#box-aturan, #btn-mulai').hide(); return; }
-            $('#teks-aturan').html(`<b>Aturan:</b> Pilih jawaban dumasar soal PDF (Poin 1-5). Ulah pindah tab browser!`);
-            $('#box-aturan, #btn-mulai').fadeIn();
-        }
-
         function mulaiUjian() {
             const mp = $('#mapel').val();
-            $('#login-form').hide();
-            $('#ujian-container').css('display', 'flex');
-            $('#info-header').html(`<b>${dataMurid.nami}</b> | ${mp}`);
+            $('#login-overlay').fadeOut();
+            $('#btn-toggle-panel').show();
             
             const pdfUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mp}.pdf`;
-            const gViewer = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
-            
-            $('#pdf-msg').hide();
-            $('#pdf-viewer').attr('src', gViewer).show();
+            $('#pdf-viewer').attr('src', `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`);
 
-            let navH = ''; let soalH = '';
-            for(let i=1; i<=25; i++) {
+            let navH = '', soalH = '';
+            for(let i=1; i<=totalSoal; i++) {
                 navH += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
-                soalH += `<div class="soal-box" id="s-${i}"><h2 style="margin:0">Nomer ${i}</h2><div class="options"><div class="opt-btn" onclick="pilih(${i},'A')">A</div><div class="opt-btn" onclick="pilih(${i},'B')">B</div><div class="opt-btn" onclick="pilih(${i},'C')">C</div><div class="opt-btn" onclick="pilih(${i},'D')">D</div><div class="opt-btn" onclick="pilih(${i},'E')">E</div></div></div>`;
+                soalH += `<div class="soal-box" id="s-${i}" style="display:none; width:100%; text-align:center;">
+                            <h3 style="margin:0 0 15px 0;">SOAL NOMER ${i}</h3>
+                            <div class="options">
+                                <div class="opt-btn" onclick="pilih(${i},'A')">A</div>
+                                <div class="opt-btn" onclick="pilih(${i},'B')">B</div>
+                                <div class="opt-btn" onclick="pilih(${i},'C')">C</div>
+                                <div class="opt-btn" onclick="pilih(${i},'D')">D</div>
+                                <div class="opt-btn" onclick="pilih(${i},'E')">E</div>
+                            </div>
+                         </div>`;
             }
             $('#nav-grid').html(navH); $('#jawaban-area').html(soalH);
             buka(1);
         }
 
+        function togglePanel() { $('#panel-jawaban').toggleClass('open'); }
+
         function buka(n) {
-            $('.nav-btn').removeClass('active'); $('.soal-box').removeClass('active');
-            $(`#n-${n}`).addClass('active'); $(`#s-${n}`).addClass('active');
-            // Auto scroll ka tengah dumasar nomer aktip (khusus HP)
-            const activeBtn = document.getElementById(`n-${n}`);
-            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            $('.nav-btn').removeClass('active'); $('.soal-box').hide();
+            $(`#n-${n}`).addClass('active'); $(`#s-${n}`).show();
+            document.getElementById(`n-${n}`).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
 
         function pilih(n, abjad) {
             $(`#s-${n} .opt-btn`).removeClass('selected');
             $(`#s-${n} .opt-btn:contains('${abjad}')`).addClass('selected');
             $(`#n-${n}`).addClass('filled');
-            if(n < 25) { setTimeout(() => { buka(n + 1); }, 300); }
+            checkCompletion();
+            if(n < totalSoal) { setTimeout(() => { togglePanel(); buka(n + 1); }, 400); }
         }
 
+        function checkCompletion() {
+            const filled = $('.nav-btn.filled').length;
+            if(filled === totalSoal) {
+                $('#btn-submit').prop('disabled', false);
+                $('#msg-warning').text("");
+            } else {
+                $('#msg-warning').text("Lengkepan sadaya jawaban (tombol héjo sadaya) nembe tiasa Submit!");
+            }
+        }
+
+        // ANTI-CONTEK DETECTION
         window.onblur = function() {
-            if($('#ujian-container').is(':visible')) {
-                cheat++;
-                alert("⚠️ NYONTÉK KACATET!");
+            if(!$('#login-overlay').is(':visible') && !$('#result-overlay').is(':visible')) {
+                cheatCount++;
+                alert("PERHATOSAN: Anjeun kadeteksi muka tab sanés! Gerak-gerik anjeun kacatet ku guru.");
             }
         };
 
         function kirimJawaban() {
-            if(!confirm("Yakin bade dikirim?")) return;
+            if(!confirm("Yakin bade dikirim? Nilai moal tiasa dirobih deui.")) return;
             let jwb = "";
-            for(let i=1; i<=25; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
-            $('#btn-submit').prop('disabled', true).text("Ngirim...");
+            for(let i=1; i<=totalSoal; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
+            
+            $('#btn-submit').prop('disabled', true).text("Nuju Ngirim...");
+            
             $.post(SCRIPT_URL, {
                 nami: dataMurid.nami, nis: dataMurid.nis, kelas: dataMurid.kelas,
-                mapel: $('#mapel').val(), jawaban: jwb, cheat: cheat, status: "Selesai"
-            }, function() { alert("Jawaban kakirim!"); location.reload(); });
+                mapel: $('#mapel').val(), jawaban: jwb, cheat: cheatCount, status: "Selesai"
+            }, function(res) {
+                $('#res-nami').text(dataMurid.nami);
+                $('#res-nilai').text(res.nilai || "75"); // Munculkeun nilai ti server
+                $('#res-msg').text(`Jumlah Pindah Tab: ${cheatCount} kali.`);
+                $('#result-overlay').fadeIn();
+            });
         }
     </script>
 </body>
