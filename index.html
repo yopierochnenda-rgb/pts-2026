@@ -2,51 +2,71 @@
 <html lang="su">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PTS 2026 - Login NIS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PTS 2026 - RULES</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #1a73e8; --bg: #f8f9fa; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .pdf-container { flex: 1; background: #525659; position: relative; border-right: 2px solid #ddd; }
-        iframe { width: 100%; height: 100%; border: none; }
+
+        /* --- TAMPILAN DESKTOP --- */
+        .pdf-container { flex: 1; background: #525659; position: relative; border-right: 2px solid #ddd; display: flex; flex-direction: column; }
+        iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
         .sidebar { width: 380px; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; z-index: 10; }
+        
+        /* --- TAMPILAN RESPONSIVE HP --- */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow-y: auto; height: auto; }
+            .pdf-container { height: 50vh; width: 100%; position: sticky; top: 0; z-index: 20; border-right: none; border-bottom: 3px solid #ddd; }
+            .sidebar { width: 100%; height: auto; min-height: 50vh; }
+            .nav-grid { grid-template-columns: repeat(5, 1fr) !important; padding: 10px !important; }
+            .options { padding: 0 15px !important; }
+            .opt-btn { padding: 12px !important; font-size: 16px !important; }
+        }
+
         .header { padding: 15px; background: var(--primary); color: white; text-align: center; }
-        #login-form { padding: 20px; overflow-y: auto; }
+        #login-form { padding: 20px; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        
         #ujian-container { display: none; flex-direction: column; height: 100%; }
         .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; background: #f1f3f4; border-bottom: 1px solid #ddd; }
         .nav-btn { padding: 10px 0; background: white; border: 1px solid #ccc; border-radius: 6px; text-align: center; cursor: pointer; font-size: 14px; font-weight: 600; }
         .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .nav-btn.filled { background: #ceead6; border-color: #34a853; }
-        .jawaban-area { flex: 1; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .soal-box { display: none; width: 100%; text-align: center; padding: 20px; }
+        
+        .jawaban-area { flex: 1; display: flex; align-items: center; justify-content: center; background: #fff; padding: 20px 0; }
+        .soal-box { display: none; width: 100%; text-align: center; }
         .soal-box.active { display: block; }
-        .options { display: flex; flex-direction: column; gap: 10px; padding: 0 40px; margin-top: 20px; }
+        .options { display: flex; flex-direction: column; gap: 10px; padding: 0 40px; margin-top: 10px; }
         .opt-btn { padding: 15px; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 18px; transition: 0.2s; }
         .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
-        .footer { padding: 15px; border-top: 1px solid #eee; }
+        
+        .footer { padding: 15px; border-top: 1px solid #eee; background: white; }
         button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: inherit; }
+        
         #data-konfirmasi { display:none; margin-top:15px; }
-        .aturan-box { background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; font-size: 13px; margin-top: 10px; }
-        @media (max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: 60%; } .pdf-container { height: 40%; } }
+        .aturan-box { background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; font-size: 13px; margin-top: 10px; text-align: left; }
     </style>
 </head>
 <body>
 
     <div class="pdf-container">
-        <div id="pdf-msg" style="color:white; text-align:center; margin-top:30%;">PDF Soal bakal nembongan di dieu saatos milih Mapel.</div>
+        <div id="pdf-msg" style="color:white; text-align:center; padding: 20px; margin-top:20%;">
+            <p>Soal PDF nembongan di dieu saatos milih Mapel.</p>
+            <a id="btn-manual" href="#" target="_blank" style="display:none; background:#ffc107; color:black; padding:10px; text-decoration:none; border-radius:5px; font-weight:bold; font-size:12px;">
+                KLIK IEU UPAMI SOAL TEU MUNCUL
+            </a>
+        </div>
         <iframe id="pdf-viewer" style="display:none;"></iframe>
     </div>
 
     <div class="sidebar">
         <div id="login-form">
             <div class="header" style="border-radius: 8px; margin-bottom: 10px;"><h2>PTS 2026</h2></div>
-            
             <div id="box-input-nis">
                 <p style="font-size: 14px; color: #666;">Lebetkeun NIS anjeun:</p>
-                <input type="number" id="input-nis" placeholder="Conto: 12345" required>
+                <input type="number" id="input-nis" placeholder="Conto: 12345">
                 <button onclick="cekSiswa()" id="btn-cek">CEK DATA SISWA</button>
             </div>
 
@@ -90,7 +110,6 @@
             const nis = $('#input-nis').val();
             if(!nis) return alert("Eusian NIS heula!");
             $('#btn-cek').prop('disabled', true).text("Nuju mariksa...");
-            
             $.getJSON(SCRIPT_URL + "?action=checkNIS&nis=" + nis, function(res) {
                 if(res.found) {
                     dataMurid = res; dataMurid.nis = nis;
@@ -99,48 +118,51 @@
                     $('#txt-kelas').text("Kelas: " + res.kelas);
                     $('#data-konfirmasi').fadeIn();
                 } else {
-                    alert("NIS teu kapendak! Pariksa deui nomer NIS anjeun.");
-                    $('#btn-cek').prop('disabled', false).text("CEK DATA SISWA");
+                    alert("NIS teu kapendak!"); $('#btn-cek').prop('disabled', false).text("CEK DATA SISWA");
                 }
             });
         }
 
         function tampilAturan() {
             const mp = $('#mapel').val();
-            const box = $('#box-aturan');
-            const teks = $('#teks-aturan');
-            const btn = $('#btn-mulai');
-            if (!mp) { box.hide(); btn.hide(); return; }
-
-            let info = (mp === "SUNDA") 
-                ? "Ieu ujian <b>Basa Sunda</b>. Pilih jawaban nu pangmerenahna (1-5 poin). Ulah pindah tab!" 
-                : "Ieu ujian <b>Seni Budaya</b>. Pilih jawaban dumasar tingkatan kaéndahan (1-5 poin). Ulah nyonték!";
-            
-            teks.html(`<ul style="margin:5px 0; padding-left:15px;"><li>${info}</li><li>Sadaya gerak-gerik pindah tab bakal kacatet ku Guru.</li></ul>`);
-            box.fadeIn(); btn.fadeIn();
+            if (!mp) { $('#box-aturan, #btn-mulai').hide(); return; }
+            let info = (mp === "SUNDA") ? "Pilih jawaban nu pangmerenahna (1-5 poin)." : "Pilih jawaban dumasar tingkatan (1-5 poin).";
+            $('#teks-aturan').html(`<ul style="margin:5px 0; padding-left:15px;"><li>${info}</li><li>Ulah pindah tab browser!</li></ul>`);
+            $('#box-aturan, #btn-mulai').fadeIn();
         }
 
         function mulaiUjian() {
             const mp = $('#mapel').val();
             $('#login-form').hide();
             $('#ujian-container').css('display', 'flex');
-            $('#info-header').html(`<b>${dataMurid.nami}</b><br>${mp}`);
+            $('#info-header').html(`<b>${dataMurid.nami}</b> | ${mp}`);
+            
+            // Path PDF sareng Google Viewer kanggo HP
+            const pdfUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mp}.pdf`;
+            const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+            
             $('#pdf-msg').hide();
-            $('#pdf-viewer').attr('src', `pdf/${mp}.pdf`).show();
+            $('#pdf-viewer').attr('src', viewerUrl).show();
+            $('#btn-manual').attr('href', pdfUrl).show();
 
             let navH = ''; let soalH = '';
             for(let i=1; i<=25; i++) {
                 navH += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
-                soalH += `<div class="soal-box" id="s-${i}"><h2 style="margin-top:0">Nomer ${i}</h2><div class="options"><div class="opt-btn" onclick="pilih(${i},'A')">A</div><div class="opt-btn" onclick="pilih(${i},'B')">B</div><div class="opt-btn" onclick="pilih(${i},'C')">C</div><div class="opt-btn" onclick="pilih(${i},'D')">D</div><div class="opt-btn" onclick="pilih(${i},'E')">E</div></div></div>`;
+                soalH += `<div class="soal-box" id="s-${i}"><h2 style="margin:10px 0">Nomer ${i}</h2><div class="options"><div class="opt-btn" onclick="pilih(${i},'A')">A</div><div class="opt-btn" onclick="pilih(${i},'B')">B</div><div class="opt-btn" onclick="pilih(${i},'C')">C</div><div class="opt-btn" onclick="pilih(${i},'D')">D</div><div class="opt-btn" onclick="pilih(${i},'E')">E</div></div></div>`;
             }
             $('#nav-grid').html(navH); $('#jawaban-area').html(soalH);
             buka(1);
-            document.documentElement.requestFullscreen().catch(e => {});
+            if(!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                document.documentElement.requestFullscreen().catch(e => {});
+            }
         }
 
         function buka(n) {
             $('.nav-btn').removeClass('active'); $('.soal-box').removeClass('active');
             $(`#n-${n}`).addClass('active'); $(`#s-${n}`).addClass('active');
+            if(window.innerWidth <= 768) {
+                document.getElementById('ujian-container').scrollIntoView({behavior: "smooth"});
+            }
         }
 
         function pilih(n, abjad) {
@@ -153,19 +175,19 @@
         window.onblur = function() {
             if($('#ujian-container').is(':visible')) {
                 cheat++;
-                alert("⚠️ PERHATOSAN! Ulah pindah tab atawa kaluar browser. Pagawean anjeun kacatet ku Guru!");
+                alert("⚠️ TEU KÉNGING PINDAH TAB!");
             }
         };
 
         function kirimJawaban() {
-            if(!confirm("Yakin bade ngirim jawaban ayeuna?")) return;
+            if(!confirm("Yakin bade dikirim?")) return;
             let jwb = "";
             for(let i=1; i<=25; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
             $('#btn-submit').prop('disabled', true).text("Nuju ngirim...");
             $.post(SCRIPT_URL, {
                 nami: dataMurid.nami, nis: dataMurid.nis, kelas: dataMurid.kelas,
                 mapel: $('#mapel').val(), jawaban: jwb, cheat: cheat, status: "Selesai"
-            }, function(r) { alert("Jawaban parantos kakirim! Hatur nuhun."); location.reload(); });
+            }, function() { alert("Jawaban kakirim!"); location.reload(); });
         }
     </script>
 </body>
