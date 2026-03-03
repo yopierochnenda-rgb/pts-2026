@@ -7,42 +7,44 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #1a73e8; --bg: #f8f9fa; --danger: #d93025; --success: #1e8e3e; }
+        :root { --primary: #1a73e8; --bg: #f8f9fa; --danger: #d93025; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Poppins', sans-serif; }
 
-        /* LOGIN OVERLAY */
+        /* OVERLAY LOGIN - KEDAH MUNJUL PISAN */
         #login-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: white; z-index: 9999; padding: 40px 25px; 
             display: flex; flex-direction: column; justify-content: center; 
         }
-        .header-title { text-align: center; color: var(--primary); margin-bottom: 25px; }
-        input, select { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; font-size: 16px; font-family: inherit; outline: none; background: #f9f9f9; text-align: center; }
-        .btn-green { background: var(--success); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 10px; }
+        .header-title { text-align: center; color: var(--primary); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; font-size: 16px; font-family: inherit; outline: none; background: #f9f9f9; }
+        .btn-green { background: #1e8e3e; color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 10px; }
         .btn-green:disabled { background: #ccc; }
 
-        /* PDF & PANEL */
+        /* AREA PDF */
         .pdf-container { width: 100%; height: 100vh; background: #525659; position: absolute; z-index: 1; }
         iframe { width: 100%; height: 100%; border: none; }
-        #btn-toggle-panel { position: fixed; bottom: 25px; right: 20px; z-index: 1000; background: var(--danger); color: white; border: 2px solid white; padding: 15px 25px; border-radius: 50px; font-weight: bold; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 
-        .sidebar { position: fixed; bottom: -100%; left: 0; width: 100%; height: 60vh; background: white; z-index: 2000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 30px 30px 0 0; display: flex; flex-direction: column; }
+        /* PANEL JAWABAN */
+        #btn-toggle-panel { position: fixed; bottom: 25px; right: 20px; z-index: 1000; background: var(--danger); color: white; border: 2px solid white; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 20px rgba(0,0,0,0.4); display: none; }
+        .sidebar { position: fixed; bottom: -100%; left: 0; width: 100%; height: 60vh; background: white; z-index: 2000; transition: 0.5s ease; border-radius: 30px 30px 0 0; display: flex; flex-direction: column; }
         .sidebar.open { bottom: 0; }
-        .panel-handle { width: 100%; height: 45px; background: #f1f3f4; border-radius: 30px 30px 0 0; display: flex; align-items: center; justify-content: center; }
-        .handle-bar { width: 45px; height: 5px; background: #ccc; border-radius: 3px; }
+        .panel-handle { width: 100%; height: 40px; background: #f1f3f4; border-radius: 30px 30px 0 0; display: flex; align-items: center; justify-content: center; }
+        .handle-bar { width: 40px; height: 5px; background: #ccc; border-radius: 3px; }
 
-        .nav-grid { display: flex; overflow-x: auto; padding: 12px; gap: 10px; background: #fff; border-bottom: 1px solid #ddd; }
-        .nav-btn { min-width: 45px; height: 45px; background: #f1f3f4; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex: 0 0 auto; }
-        .nav-btn.filled { background: var(--success); color: white; }
+        .nav-grid { display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: #fff; border-bottom: 1px solid #ddd; }
+        .nav-btn { min-width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex: 0 0 auto; }
+        .nav-btn.filled { background: #34a853; color: white; }
         .nav-btn.active { border: 3px solid var(--primary); }
 
-        .options { display: flex; gap: 8px; width: 100%; max-width: 400px; padding: 0 15px; }
+        .jawaban-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .options { display: flex; gap: 8px; width: 90%; }
         .opt-btn { flex: 1; padding: 20px 0; border: 2px solid #ddd; border-radius: 15px; text-align: center; font-weight: bold; font-size: 22px; background: #fff; }
         .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        #result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
-        .score-circle { width: 140px; height: 140px; border: 8px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 45px; font-weight: bold; color: var(--primary); margin: 20px 0; }
+        #result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .score-box { font-size: 80px; font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -50,96 +52,74 @@
     <div id="login-overlay">
         <div class="header-title">
             <h1>RULES</h1>
-            <p>PTS 2026 - Login NIS</p>
+            <p>PTS 2026 - Wilujeng Ujian</p>
         </div>
         
-        <div id="box-step-1">
-            <input type="number" id="input-nis" placeholder="Lebetkeun NIS..." inputmode="numeric">
-            <button class="btn-green" id="btn-cek" onclick="cekSiswa()">MARIKSA DATA</button>
-        </div>
+        <input type="text" id="input-nami" placeholder="Ketik Nami Lengkep...">
+        <select id="input-kelas">
+            <option value="">-- Pilih Kelas --</option>
+            <option value="7A">7A</option>
+            <option value="7B">7B</option>
+            <option value="8A">8A</option>
+            <option value="8B">8B</option>
+        </select>
+        <select id="input-mapel">
+            <option value="">-- Pilih Mapel --</option>
+            <option value="SUNDA">Basa Sunda</option>
+            <option value="SENI">Seni Budaya</option>
+        </select>
 
-        <div id="box-step-2" style="display:none; text-align:center;">
-            <div style="background:#e8f0fe; padding:15px; border-radius:12px; border:1px solid var(--primary); margin-bottom:15px;">
-                <p style="font-size:12px; color:#555;">Wilujeng sumping,</p>
-                <b id="txt-nami" style="font-size:18px;"></b><br>
-                <span id="txt-kelas" style="font-weight:bold; color:var(--primary);"></span>
-            </div>
-
-            <select id="pilih-mapel">
-                <option value="">-- Pilih Mapel --</option>
-                <option value="SUNDA">Basa Sunda</option>
-                <option value="SENI">Seni Budaya</option>
-            </select>
-
-            <button class="btn-green" onclick="mulaiUjian()">MIMITIAN UJIAN</button>
-        </div>
+        <button class="btn-green" onclick="mulaiUjian()">MIMITIAN UJIAN</button>
+        <p style="font-size: 11px; color: #999; text-align: center; margin-top: 15px;">Pastikeun nami sarta kelas parantos leres.</p>
     </div>
 
     <div id="result-overlay">
-        <h2>UJIAN RENGSE!</h2>
-        <div class="score-circle" id="res-nilai">0</div>
-        <p><b id="res-nami"></b></p>
-        <p id="res-msg" style="font-size:12px; color:#666; margin-top:10px;"></p>
-        <button class="btn-green" onclick="location.reload()" style="max-width:200px;">KALUAR</button>
+        <h2>HASIL UJIAN</h2>
+        <div class="score-box" id="res-nilai">0</div>
+        <p id="res-nami" style="font-weight:bold;"></p>
+        <p id="res-msg"></p>
+        <button class="btn-green" onclick="location.reload()">KALUAR</button>
     </div>
 
     <div class="pdf-container"><iframe id="pdf-viewer"></iframe></div>
-    <button id="btn-toggle-panel" onclick="togglePanel()">📝 JAWAB</button>
+    <button id="btn-toggle-panel" onclick="togglePanel()">📝 EUSI JAWABAN</button>
 
     <div class="sidebar" id="panel-jawaban">
         <div class="panel-handle" onclick="togglePanel()"><div class="handle-bar"></div></div>
         <div class="nav-grid" id="nav-grid"></div>
-        <div id="jawaban-content" style="flex:1; display:flex; align-items:center; justify-content:center;"></div>
-        <div style="padding: 20px;">
+        <div class="jawaban-area" id="jawaban-area"></div>
+        <div style="padding: 15px;">
             <button onclick="kirimJawaban()" id="btn-submit" class="btn-green" disabled>SUBMIT JAWABAN</button>
         </div>
     </div>
 
     <script>
-        // URL WEB APP TI GOOGLE SCRIPT AKANG
-        const SCRIPT_URL = "URL_SCRIPT_AKANG_DI_DIEU"; 
-        let dataMurid = {}, cheatCount = 0, totalSoal = 25;
-
-        function cekSiswa() {
-            const nis = $('#input-nis').val();
-            if(!nis) return alert("Eusian NIS heula!");
-            
-            $('#btn-cek').prop('disabled', true).text("Nuju mariksa...");
-            
-            $.getJSON(`${SCRIPT_URL}?action=checkNIS&nis=${nis}`, function(res) {
-                if(res.found) {
-                    dataMurid = res;
-                    dataMurid.nis = nis;
-                    $('#box-step-1').hide();
-                    $('#txt-nami').text(res.nami);
-                    $('#txt-kelas').text("Kelas: " + res.kelas);
-                    $('#box-step-2').fadeIn();
-                } else {
-                    alert("NIS Teu Kapendak! Periksa deui nomerna.");
-                    $('#btn-cek').prop('disabled', false).text("MARIKSA DATA");
-                }
-            }).fail(function() {
-                alert("Error! Cek koneksi internet atanapi URL Script.");
-                $('#btn-cek').prop('disabled', false).text("MARIKSA DATA");
-            });
-        }
+        const SCRIPT_URL = "GANTOS_KU_URL_SCRIPT_AKANG_DI_DIEU"; // <--- WAJIB DIISI!
+        let cheatCount = 0, totalSoal = 25;
 
         function mulaiUjian() {
-            const mapel = $('#pilih-mapel').val();
-            if(!mapel) return alert("Pilih Mapel heula!");
+            const nami = $('#input-nami').val();
+            const kelas = $('#input-kelas').val();
+            const mapel = $('#input-mapel').val();
 
+            if(!nami || !kelas || !mapel) return alert("Lengkepan heula datana!");
+
+            // Fullscreen
             if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+
             $('#login-overlay').fadeOut();
             $('#btn-toggle-panel').fadeIn();
 
+            // Set PDF
             const pdfUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mapel}.pdf`;
             $('#pdf-viewer').attr('src', `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`);
 
+            // Generate Nomer
             let navH = '', soalH = '';
             for(let i=1; i<=totalSoal; i++) {
                 navH += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
                 soalH += `<div class="soal-box" id="s-${i}" style="display:none; width:100%; text-align:center;">
-                            <h3>NOMER ${i}</h3>
+                            <h3 style="margin-bottom:15px; color:var(--primary);">NOMER ${i}</h3>
                             <div class="options">
                                 <div class="opt-btn" onclick="pilih(${i},'A')">A</div>
                                 <div class="opt-btn" onclick="pilih(${i},'B')">B</div>
@@ -149,7 +129,7 @@
                             </div>
                          </div>`;
             }
-            $('#nav-grid').html(navH); $('#jawaban-content').html(soalH);
+            $('#nav-grid').html(navH); $('#jawaban-area').html(soalH);
             buka(1);
         }
 
@@ -170,18 +150,21 @@
         window.onblur = function() { if(!$('#login-overlay').is(':visible')) cheatCount++; };
 
         function kirimJawaban() {
-            if(!confirm("Kirim jawaban ayeuna?")) return;
+            if(!confirm("Yakin bade dikirim?")) return;
             let jwb = "";
             for(let i=1; i<=totalSoal; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
             
             $('#btn-submit').prop('disabled', true).text("Nuju Ngirim...");
             $.post(SCRIPT_URL, {
-                nis: dataMurid.nis, nami: dataMurid.nami, kelas: dataMurid.kelas,
-                mapel: $('#pilih-mapel').val(), jawaban: jwb, cheat: cheatCount
+                nami: $('#input-nami').val(),
+                kelas: $('#input-kelas').val(),
+                mapel: $('#input-mapel').val(),
+                jawaban: jwb,
+                cheat: cheatCount
             }, function(res) {
-                $('#res-nami').text(dataMurid.nami);
-                $('#res-nilai').text(res.nilai || "0");
-                $('#res-msg').text(`Pindah tab: ${cheatCount} kali.`);
+                $('#res-nami').text($('#input-nami').val());
+                $('#res-nilai').text(res.nilai || "Beres");
+                $('#res-msg').text("Jawaban parantos kacatet ku guru.");
                 $('#result-overlay').css('display', 'flex');
             });
         }
