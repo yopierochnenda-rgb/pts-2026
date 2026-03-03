@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SÉNSOR NYONTEK - RULES BRAND</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #000000; --card: #111111; --danger: #ff0000; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; overflow: hidden; }
+        
+        .header { text-align: center; border-bottom: 2px solid #222; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { color: var(--danger); font-weight: 900; letter-spacing: 5px; margin: 0; }
+        
+        #notif-container { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        
+        .alert-box { 
+            background: var(--card); 
+            width: 100%; 
+            max-width: 800px; 
+            padding: 30px; 
+            border: 3px solid var(--danger); 
+            border-radius: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            animation: shake 0.5s infinite, fadeIn 0.3s ease;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.2);
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10px { transform: translate(-1px, -2px) rotate(-1deg); }
+            20px { transform: translate(-3px, 0px) rotate(1deg); }
+            30px { transform: translate(3px, 2px) rotate(0deg); }
+            40px { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; scale: 0.8; } to { opacity: 1; scale: 1; } }
+
+        .info h2 { margin: 0; font-size: 40px; color: #fff; text-transform: uppercase; }
+        .info p { margin: 5px 0 0 0; font-size: 20px; color: #aaa; }
+        
+        .status { text-align: right; }
+        .status .cheat-count { font-size: 50px; font-weight: 900; color: var(--danger); display: block; }
+        .status .label { font-size: 14px; background: var(--danger); color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; }
+
+        #msg-empty { font-size: 18px; color: #333; margin-top: 100px; font-style: italic; }
+
+        /* Tombol Start */
+        #overlay-start { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .btn-start { background: var(--danger); color: white; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; cursor: pointer; font-size: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="overlay-start">
+        <h1 style="color:red; margin-bottom:20px;">RULES ANTI-CHEAT</h1>
+        <button class="btn-start" onclick="startMonitor()">AKTIFKEUN SÉNSOR</button>
+    </div>
+
+    <div class="header">
+        <h1>NOTIFIKASI PELANGGARAN LIVE</h1>
+        <p id="live-status" style="color:#555">Sénsor Pareum</p>
+    </div>
+
+    <div id="notif-container">
+        <div id="msg-empty">Nuju ngawaskeun 240 siswa... Moal aya pelanggaran ayeuna mah.</div>
+    </div>
+
+    <audio id="snd-alarm" src="https://actions.google.com/sounds/v1/alarms/emergency_beeps.ogg"></audio>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxt4q39DUbf6HkvOTzxnl5RBiLKaP5NIQrqPXhZ7hOcb2V5YGZY-NZaqy16Hrr-IVNkkw/exec";
+        let lastCount = 0;
+
+        function startMonitor() {
+            $('#overlay-start').fadeOut();
+            $('#live-status').text("🔴 SÉNSOR AKTIF").css('color', 'red');
+            
+            // Ambil data awal sangkan teu notif data lami
+            $.getJSON(SCRIPT_URL + "?action=getRekap", function(data) {
+                lastCount = data.length;
+                setInterval(checkViolation, 5000); // Cék unggal 5 detik
+            });
+        }
+
+        function checkViolation() {
+            $.getJSON(SCRIPT_URL + "?action=getRekap", function(data) {
+                if (data.length > lastCount) {
+                    let newData = data.slice(lastCount);
+                    newData.forEach(row => {
+                        let cheatCount = parseInt(row[5]); // Kolom F (Cheat)
+                        if (cheatCount > 0) {
+                            pushAlert(row[1], row[3], cheatCount);
+                        }
+                    });
+                    lastCount = data.length;
+                }
+            });
+        }
+
+        function pushAlert(nami, kelas, jumlah) {
+            $('#msg-empty').hide();
+            document.getElementById('snd-alarm').play();
+
+            let html = `
+                <div class="alert-box">
+                    <div class="info">
+                        <h2>${nami}</h2>
+                        <p>KELAS: ${kelas}</p>
+                    </div>
+                    <div class="status">
+                        <span class="cheat-count">${jumlah}X</span>
+                        <span class="label">NYONTEK</span>
+                    </div>
+                </div>
+            `;
+
+            $('#notif-container').prepend(html);
+
+            // Mun tos langkung ti 3 notif, hapus nu pang handapna ammih teu pinuh
+            if($('.alert-box').length > 4) {
+                $('.alert-box').last().fadeOut(500, function() { $(this).remove(); });
+            }
+        }
+    </script>
+</body>
+</html>
