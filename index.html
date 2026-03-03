@@ -8,75 +8,76 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #1a73e8; --bg: #f8f9fa; --danger: #d93025; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Poppins', sans-serif; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Poppins', sans-serif; }
 
-        /* AREA PDF FULL */
-        .pdf-container { width: 100%; height: 100vh; background: #525659; position: absolute; top:0; left:0; z-index: 1; }
+        /* OVERLAY LOGIN - KEDAH MUNJUL PISAN */
+        #login-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: white; z-index: 9999; padding: 40px 25px; 
+            display: flex; flex-direction: column; justify-content: center; 
+        }
+        .header-title { text-align: center; color: var(--primary); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; font-size: 16px; font-family: inherit; outline: none; background: #f9f9f9; }
+        .btn-green { background: #1e8e3e; color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 10px; }
+        .btn-green:disabled { background: #ccc; }
+
+        /* AREA PDF */
+        .pdf-container { width: 100%; height: 100vh; background: #525659; position: absolute; z-index: 1; }
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* PANEL JAWABAN SLIDE-UP */
-        #btn-toggle-panel { position: fixed; bottom: 25px; right: 20px; z-index: 999; background: var(--danger); color: white; border: 2px solid white; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 20px rgba(0,0,0,0.4); cursor: pointer; display: none; }
-        .sidebar { position: fixed; bottom: -100%; left: 0; width: 100%; height: 65vh; background: white; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 30px 30px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        /* PANEL JAWABAN */
+        #btn-toggle-panel { position: fixed; bottom: 25px; right: 20px; z-index: 1000; background: var(--danger); color: white; border: 2px solid white; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 20px rgba(0,0,0,0.4); display: none; }
+        .sidebar { position: fixed; bottom: -100%; left: 0; width: 100%; height: 60vh; background: white; z-index: 2000; transition: 0.5s ease; border-radius: 30px 30px 0 0; display: flex; flex-direction: column; }
         .sidebar.open { bottom: 0; }
-        .panel-handle { width: 100%; height: 45px; background: #f1f3f4; border-radius: 30px 30px 0 0; display: flex; align-items: center; justify-content: center; }
-        .handle-bar { width: 50px; height: 6px; background: #ccc; border-radius: 3px; }
+        .panel-handle { width: 100%; height: 40px; background: #f1f3f4; border-radius: 30px 30px 0 0; display: flex; align-items: center; justify-content: center; }
+        .handle-bar { width: 40px; height: 5px; background: #ccc; border-radius: 3px; }
 
-        /* NAVIGASI & OPSI */
-        .nav-grid { display: flex; overflow-x: auto; padding: 12px; gap: 10px; background: #fff; border-bottom: 1px solid #ddd; }
-        .nav-btn { min-width: 45px; height: 45px; background: #f1f3f4; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex: 0 0 auto; }
-        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .nav-btn.filled { background: #34a853; color: white; border-color: #2d9249; }
-        .options { display: flex; gap: 8px; width: 100%; max-width: 450px; padding: 0 10px; }
+        .nav-grid { display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: #fff; border-bottom: 1px solid #ddd; }
+        .nav-btn { min-width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex: 0 0 auto; }
+        .nav-btn.filled { background: #34a853; color: white; }
+        .nav-btn.active { border: 3px solid var(--primary); }
+
+        .jawaban-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .options { display: flex; gap: 8px; width: 90%; }
         .opt-btn { flex: 1; padding: 20px 0; border: 2px solid #ddd; border-radius: 15px; text-align: center; font-weight: bold; font-size: 22px; background: #fff; }
         .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* OVERLAYS & SEARCH */
-        #login-overlay, #result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2001; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; }
-        input, select { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; font-size: 16px; font-family: inherit; outline: none; }
-        
-        /* SEARCH SUGGESTION BOX */
-        .search-results { position: absolute; width: calc(100% - 40px); background: white; border: 1px solid #ddd; border-radius: 0 0 12px 12px; max-height: 200px; overflow-y: auto; z-index: 2002; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-top: -10px; }
-        .search-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 14px; }
-        .search-item:hover { background: #f1f3f4; }
-
-        .btn-green { background: #1e8e3e; color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 10px; }
-        .btn-green:disabled { background: #ccc; }
-        .score-circle { width: 150px; height: 150px; border: 10px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; font-weight: bold; color: var(--primary); margin: 20px auto; }
+        #result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .score-box { font-size: 80px; font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <h1 style="text-align:center; color:var(--primary); margin-bottom:5px;">RULES</h1>
-        <p style="text-align:center; color:#666; margin-bottom:30px;">Ketik Nami anjeun di handap.</p>
+        <div class="header-title">
+            <h1>RULES</h1>
+            <p>PTS 2026 - Wilujeng Ujian</p>
+        </div>
         
-        <div style="position: relative;">
-            <input type="text" id="cari-nami" placeholder="Mulai ketik nami..." autocomplete="off">
-            <div id="hasil-pencarian" class="search-results"></div>
-        </div>
+        <input type="text" id="input-nami" placeholder="Ketik Nami Lengkep...">
+        <select id="input-kelas">
+            <option value="">-- Pilih Kelas --</option>
+            <option value="7A">7A</option>
+            <option value="7B">7B</option>
+            <option value="8A">8A</option>
+            <option value="8B">8B</option>
+        </select>
+        <select id="input-mapel">
+            <option value="">-- Pilih Mapel --</option>
+            <option value="SUNDA">Basa Sunda</option>
+            <option value="SENI">Seni Budaya</option>
+        </select>
 
-        <div id="box-konfirmasi" style="display:none; text-align:center; margin-top:10px;">
-            <div style="background:#e8f0fe; padding:15px; border-radius:12px; border:1px solid var(--primary);">
-                <p style="margin:0; font-size:12px; color:#555;">Data Kapendak:</p>
-                <b id="txt-nami" style="font-size:18px;"></b><br>
-                <span id="txt-kelas" style="font-weight:bold; color:var(--primary);"></span>
-            </div>
-            
-            <select id="mapel" onchange="$('#btn-mulai').prop('disabled', false)">
-                <option value="">-- Pilih Mata Pelajaran --</option>
-                <option value="SUNDA">Basa Sunda</option>
-                <option value="SENI">Seni Budaya</option>
-            </select>
-            <button id="btn-mulai" class="btn-green" disabled onclick="mulaiUjian()">MIMITIAN UJIAN</button>
-        </div>
+        <button class="btn-green" onclick="mulaiUjian()">MIMITIAN UJIAN</button>
+        <p style="font-size: 11px; color: #999; text-align: center; margin-top: 15px;">Pastikeun nami sarta kelas parantos leres.</p>
     </div>
 
-    <div id="result-overlay" style="display:none; text-align:center;">
-        <h2>UJIAN RENGSE!</h2>
-        <div class="score-circle" id="res-nilai">0</div>
-        <p>Hatur nuhun, <b id="res-nami"></b></p>
-        <p id="res-msg" style="color:#d93025; font-weight:bold; font-size:12px;"></p>
+    <div id="result-overlay">
+        <h2>HASIL UJIAN</h2>
+        <div class="score-box" id="res-nilai">0</div>
+        <p id="res-nami" style="font-weight:bold;"></p>
+        <p id="res-msg"></p>
         <button class="btn-green" onclick="location.reload()">KALUAR</button>
     </div>
 
@@ -87,56 +88,38 @@
         <div class="panel-handle" onclick="togglePanel()"><div class="handle-bar"></div></div>
         <div class="nav-grid" id="nav-grid"></div>
         <div class="jawaban-area" id="jawaban-area"></div>
-        <div style="padding: 10px 20px 25px;">
-            <button onclick="kirimJawaban()" id="btn-submit" class="btn-green" disabled>KIRIM JAWABAN</button>
+        <div style="padding: 15px;">
+            <button onclick="kirimJawaban()" id="btn-submit" class="btn-green" disabled>SUBMIT JAWABAN</button>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPw-5z_k6simejXhQarFcNYbP07_rSxQvAhOR8Cucv2k5qJo5gcce4Nx7i8j7XKcchNQ/exec";
-        let cheatCount = 0, totalSoal = 25, dataTerpilih = {};
-
-        // FITUR CARI NAMA (AUTO-COMPLETE)
-        $('#cari-nami').on('input', function() {
-            const keyword = $(this).val();
-            if(keyword.length < 2) { $('#hasil-pencarian').hide(); return; }
-            
-            $.getJSON(SCRIPT_URL + "?action=searchSiswa&query=" + keyword, function(res) {
-                let html = '';
-                res.forEach(s => {
-                    html += `<div class="search-item" onclick="pilihSiswa('${s.nis}','${s.nami}','${s.kelas}')">
-                                <b>${s.nami}</b> (${s.kelas})
-                             </div>`;
-                });
-                if(res.length > 0) $('#hasil-pencarian').html(html).show();
-                else $('#hasil-pencarian').hide();
-            });
-        });
-
-        function pilihSiswa(nis, nami, kelas) {
-            dataTerpilih = { nis, nami, kelas };
-            $('#cari-nami').val(nami);
-            $('#hasil-pencarian').hide();
-            $('#txt-nami').text(nami);
-            $('#txt-kelas').text("Kelas: " + kelas);
-            $('#box-konfirmasi').fadeIn();
-        }
+        const SCRIPT_URL = "GANTOS_KU_URL_SCRIPT_AKANG_DI_DIEU"; // <--- WAJIB DIISI!
+        let cheatCount = 0, totalSoal = 25;
 
         function mulaiUjian() {
-            var docEl = document.documentElement;
-            if(docEl.requestFullscreen) docEl.requestFullscreen();
+            const nami = $('#input-nami').val();
+            const kelas = $('#input-kelas').val();
+            const mapel = $('#input-mapel').val();
+
+            if(!nami || !kelas || !mapel) return alert("Lengkepan heula datana!");
+
+            // Fullscreen
+            if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+
             $('#login-overlay').fadeOut();
             $('#btn-toggle-panel').fadeIn();
-            
-            const mp = $('#mapel').val();
-            const pdfUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mp}.pdf`;
+
+            // Set PDF
+            const pdfUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mapel}.pdf`;
             $('#pdf-viewer').attr('src', `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`);
 
+            // Generate Nomer
             let navH = '', soalH = '';
             for(let i=1; i<=totalSoal; i++) {
                 navH += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
                 soalH += `<div class="soal-box" id="s-${i}" style="display:none; width:100%; text-align:center;">
-                            <h3 style="color:var(--primary); margin-bottom:15px;">NOMER ${i}</h3>
+                            <h3 style="margin-bottom:15px; color:var(--primary);">NOMER ${i}</h3>
                             <div class="options">
                                 <div class="opt-btn" onclick="pilih(${i},'A')">A</div>
                                 <div class="opt-btn" onclick="pilih(${i},'B')">B</div>
@@ -154,7 +137,7 @@
         function buka(n) {
             $('.nav-btn').removeClass('active'); $('.soal-box').hide();
             $(`#n-${n}`).addClass('active'); $(`#s-${n}`).show();
-            document.getElementById(`n-${n}`).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            document.getElementById(`n-${n}`).scrollIntoView({ behavior: 'smooth', inline: 'center' });
         }
 
         function pilih(n, abjad) {
@@ -164,25 +147,25 @@
             if(n < totalSoal) { setTimeout(() => { togglePanel(); buka(n + 1); }, 400); }
         }
 
-        window.onblur = function() {
-            if(!$('#login-overlay').is(':visible') && !$('#result-overlay').is(':visible')) {
-                cheatCount++; alert("⚠️ NYONTEK KACATET!");
-            }
-        };
+        window.onblur = function() { if(!$('#login-overlay').is(':visible')) cheatCount++; };
 
         function kirimJawaban() {
-            if(!confirm("Kirim jawaban?")) return;
+            if(!confirm("Yakin bade dikirim?")) return;
             let jwb = "";
             for(let i=1; i<=totalSoal; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
+            
             $('#btn-submit').prop('disabled', true).text("Nuju Ngirim...");
             $.post(SCRIPT_URL, {
-                nis: dataTerpilih.nis, nami: dataTerpilih.nami, kelas: dataTerpilih.kelas,
-                mapel: $('#mapel').val(), jawaban: jwb, cheat: cheatCount
+                nami: $('#input-nami').val(),
+                kelas: $('#input-kelas').val(),
+                mapel: $('#input-mapel').val(),
+                jawaban: jwb,
+                cheat: cheatCount
             }, function(res) {
-                $('#res-nami').text(dataTerpilih.nami);
-                $('#res-nilai').text(res.nilai || "0");
-                $('#res-msg').text(`Jumlah Pindah Tab: ${cheatCount} kali.`);
-                $('#result-overlay').fadeIn();
+                $('#res-nami').text($('#input-nami').val());
+                $('#res-nilai').text(res.nilai || "Beres");
+                $('#res-msg').text("Jawaban parantos kacatet ku guru.");
+                $('#result-overlay').css('display', 'flex');
             });
         }
     </script>
