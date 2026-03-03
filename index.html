@@ -3,123 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>PTS 2026 - RULES</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #1a73e8; --bg: #f8f9fa; --danger: #d93025; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Poppins', sans-serif; }
+        
+        /* Supados layar bener-bener bersih ti margin browser */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
+        body { font-family: 'Poppins', sans-serif; }
 
-        /* OVERLAY LOGIN - KEDAH MUNJUL PISAN */
-        #login-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: white; z-index: 9999; padding: 40px 25px; 
-            display: flex; flex-direction: column; justify-content: center; 
-        }
-        .header-title { text-align: center; color: var(--primary); margin-bottom: 20px; }
-        input, select { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; font-size: 16px; font-family: inherit; outline: none; background: #f9f9f9; }
-        .btn-green { background: #1e8e3e; color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 10px; }
-        .btn-green:disabled { background: #ccc; }
-
-        /* AREA PDF */
-        .pdf-container { width: 100%; height: 100vh; background: #525659; position: absolute; z-index: 1; }
+        /* AREA PDF - Jantenkeun Full 100% */
+        .pdf-container { width: 100%; height: 100vh; background: #525659; position: absolute; top:0; left:0; z-index: 1; }
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* PANEL JAWABAN */
-        #btn-toggle-panel { position: fixed; bottom: 25px; right: 20px; z-index: 1000; background: var(--danger); color: white; border: 2px solid white; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 20px rgba(0,0,0,0.4); display: none; }
-        .sidebar { position: fixed; bottom: -100%; left: 0; width: 100%; height: 60vh; background: white; z-index: 2000; transition: 0.5s ease; border-radius: 30px 30px 0 0; display: flex; flex-direction: column; }
+        /* TOMBOL FLOATING */
+        #btn-toggle-panel {
+            position: fixed; bottom: 25px; right: 20px; z-index: 999;
+            background: var(--danger); color: white; border: none; padding: 15px 25px;
+            border-radius: 50px; font-weight: bold; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            cursor: pointer; display: none; border: 2px solid white;
+        }
+
+        /* PANEL JAWABAN SLIDE-UP */
+        .sidebar {
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 65vh;
+            background: white; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 30px 30px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+        }
         .sidebar.open { bottom: 0; }
-        .panel-handle { width: 100%; height: 40px; background: #f1f3f4; border-radius: 30px 30px 0 0; display: flex; align-items: center; justify-content: center; }
-        .handle-bar { width: 40px; height: 5px; background: #ccc; border-radius: 3px; }
 
-        .nav-grid { display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: #fff; border-bottom: 1px solid #ddd; }
-        .nav-btn { min-width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex: 0 0 auto; }
-        .nav-btn.filled { background: #34a853; color: white; }
-        .nav-btn.active { border: 3px solid var(--primary); }
+        .panel-handle { width: 100%; height: 45px; background: #f1f3f4; border-radius: 30px 30px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .handle-bar { width: 50px; height: 6px; background: #ccc; border-radius: 3px; }
 
-        .jawaban-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .options { display: flex; gap: 8px; width: 90%; }
-        .opt-btn { flex: 1; padding: 20px 0; border: 2px solid #ddd; border-radius: 15px; text-align: center; font-weight: bold; font-size: 22px; background: #fff; }
-        .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        /* NAVIGASI NOMER */
+        .nav-grid { display: flex; overflow-x: auto; padding: 12px; gap: 10px; background: #fff; border-bottom: 1px solid #ddd; scroll-behavior: smooth; }
+        .nav-btn { min-width: 45px; height: 45px; background: #f1f3f4; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex: 0 0 auto; font-size: 14px; }
+        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 10px rgba(26,115,232,0.4); }
+        .nav-btn.filled { background: #34a853; color: white; border-color: #2d9249; }
 
-        #result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .score-box { font-size: 80px; font-weight: bold; color: var(--primary); }
+        /* OPSI JAWABAN */
+        .jawaban-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
+        .options { display: flex; gap: 8px; width: 100%; max-width: 450px; padding: 0 10px; }
+        .opt-btn { flex: 1; padding: 20px 0; border: 2px solid #ddd; border-radius: 15px; text-align: center; font-weight: bold; font-size: 22px; background: #fff; transition: 0.2s; }
+        .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); transform: scale(0.95); }
+
+        /* OVERLAYS (LOGIN & RESULT) */
+        #login-overlay, #result-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: white; z-index: 2001; padding: 40px 20px; 
+            box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; 
+        }
+        input, select { width: 100%; padding: 15px; margin: 12px 0; border: 2px solid #eee; border-radius: 12px; font-size: 16px; font-family: inherit; }
+        .btn-green { background: #1e8e3e; color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; box-shadow: 0 4px 10px rgba(30,142,62,0.3); }
+        .btn-green:disabled { background: #ccc; box-shadow: none; }
+
+        .score-circle { width: 150px; height: 150px; border: 10px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; font-weight: bold; color: var(--primary); margin: 20px auto; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <div class="header-title">
-            <h1>RULES</h1>
-            <p>PTS 2026 - Wilujeng Ujian</p>
+        <h1 style="text-align:center; color:var(--primary); margin-bottom:30px;">RULES - PTS 2026</h1>
+        <div id="box-login">
+            <input type="number" id="input-nis" placeholder="Lebetkeun NIS Anjeun..." inputmode="numeric">
+            <button class="btn-green" onclick="cekSiswa()" id="btn-cek">LOGIN</button>
         </div>
-        
-        <input type="text" id="input-nami" placeholder="Ketik Nami Lengkep...">
-        <select id="input-kelas">
-            <option value="">-- Pilih Kelas --</option>
-            <option value="7A">7A</option>
-            <option value="7B">7B</option>
-            <option value="8A">8A</option>
-            <option value="8B">8B</option>
-        </select>
-        <select id="input-mapel">
-            <option value="">-- Pilih Mapel --</option>
-            <option value="SUNDA">Basa Sunda</option>
-            <option value="SENI">Seni Budaya</option>
-        </select>
-
-        <button class="btn-green" onclick="mulaiUjian()">MIMITIAN UJIAN</button>
-        <p style="font-size: 11px; color: #999; text-align: center; margin-top: 15px;">Pastikeun nami sarta kelas parantos leres.</p>
+        <div id="box-konfirmasi" style="display:none; text-align:center;">
+            <p style="font-size:16px;">Wilujeng sumping, <br><b id="txt-nami" style="font-size:22px; color:var(--primary);"></b></p>
+            <select id="mapel" onchange="$('#btn-mulai').prop('disabled', false)">
+                <option value="">-- Pilih Mata Pelajaran --</option>
+                <option value="SUNDA">Basa Sunda</option>
+                <option value="SENI">Seni Budaya</option>
+            </select>
+            <p style="font-size:12px; color:#666; margin-top:15px;">Klik "MIMITIAN" kanggo nampilkeun soal sarta otomatis mode Layar Pinuh (Fullscreen).</p>
+            <button id="btn-mulai" class="btn-green" disabled onclick="mulaiUjian()" style="margin-top:10px;">MIMITIAN UJIAN</button>
+        </div>
     </div>
 
-    <div id="result-overlay">
-        <h2>HASIL UJIAN</h2>
-        <div class="score-box" id="res-nilai">0</div>
-        <p id="res-nami" style="font-weight:bold;"></p>
-        <p id="res-msg"></p>
-        <button class="btn-green" onclick="location.reload()">KALUAR</button>
+    <div id="result-overlay" style="display:none; text-align:center;">
+        <h2 style="margin-top:0;">UJIAN RENGSE!</h2>
+        <p>Hatur nuhun, <b id="res-nami"></b></p>
+        <div class="score-circle" id="res-nilai">0</div>
+        <p id="res-msg" style="color:#d93025; font-weight:bold;"></p>
+        <button class="btn-green" onclick="location.reload()">KALUAR SISTEM</button>
     </div>
 
-    <div class="pdf-container"><iframe id="pdf-viewer"></iframe></div>
+    <div class="pdf-container">
+        <iframe id="pdf-viewer" loading="lazy"></iframe>
+    </div>
+
     <button id="btn-toggle-panel" onclick="togglePanel()">📝 EUSI JAWABAN</button>
 
     <div class="sidebar" id="panel-jawaban">
         <div class="panel-handle" onclick="togglePanel()"><div class="handle-bar"></div></div>
         <div class="nav-grid" id="nav-grid"></div>
         <div class="jawaban-area" id="jawaban-area"></div>
-        <div style="padding: 15px;">
-            <button onclick="kirimJawaban()" id="btn-submit" class="btn-green" disabled>SUBMIT JAWABAN</button>
+        <div style="padding: 10px 20px 25px;">
+            <p id="msg-warning" style="color:red; font-size:12px; text-align:center; margin-bottom:8px; font-weight:bold;"></p>
+            <button onclick="kirimJawaban()" id="btn-submit" class="btn-green" disabled>KIRIM JAWABAN</button>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "GANTOS_KU_URL_SCRIPT_AKANG_DI_DIEU"; // <--- WAJIB DIISI!
-        let cheatCount = 0, totalSoal = 25;
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPw-5z_k6simejXhQarFcNYbP07_rSxQvAhOR8Cucv2k5qJo5gcce4Nx7i8j7XKcchNQ/exec";
+        let dataMurid = {}, cheatCount = 0, totalSoal = 25;
+
+        // Fungsi Paksa Fullscreen
+        function toggleFullScreen() {
+            var doc = window.document;
+            var docEl = doc.documentElement;
+            var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                requestFullScreen.call(docEl);
+            }
+        }
+
+        function cekSiswa() {
+            const nis = $('#input-nis').val();
+            if(!nis) return alert("Eusian NIS!");
+            $('#btn-cek').prop('disabled', true).text("Nuju Mariksa...");
+            $.getJSON(SCRIPT_URL + "?action=checkNIS&nis=" + nis, function(res) {
+                if(res.found) {
+                    dataMurid = res; dataMurid.nis = nis;
+                    $('#box-login').hide(); $('#txt-nami').text(res.nami); $('#box-konfirmasi').show();
+                } else {
+                    alert("NIS Teu Kapendak!"); $('#btn-cek').prop('disabled', false).text("LOGIN");
+                }
+            });
+        }
 
         function mulaiUjian() {
-            const nami = $('#input-nami').val();
-            const kelas = $('#input-kelas').val();
-            const mapel = $('#input-mapel').val();
-
-            if(!nami || !kelas || !mapel) return alert("Lengkepan heula datana!");
-
-            // Fullscreen
-            if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-
+            // Aktipkeun Fullscreen nalika mimitian
+            toggleFullScreen();
+            
+            const mp = $('#mapel').val();
             $('#login-overlay').fadeOut();
             $('#btn-toggle-panel').fadeIn();
-
-            // Set PDF
-            const pdfUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mapel}.pdf`;
+            
+            const pdfUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mp}.pdf`;
             $('#pdf-viewer').attr('src', `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`);
 
-            // Generate Nomer
             let navH = '', soalH = '';
             for(let i=1; i<=totalSoal; i++) {
                 navH += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
-                soalH += `<div class="soal-box" id="s-${i}" style="display:none; width:100%; text-align:center;">
-                            <h3 style="margin-bottom:15px; color:var(--primary);">NOMER ${i}</h3>
+                soalH += `<div class="soal-box" id="s-${i}" style="display:none; width:100%;">
+                            <h3 style="margin:0 0 15px 0; color:var(--primary);">NOMER ${i}</h3>
                             <div class="options">
                                 <div class="opt-btn" onclick="pilih(${i},'A')">A</div>
                                 <div class="opt-btn" onclick="pilih(${i},'B')">B</div>
@@ -134,38 +167,57 @@
         }
 
         function togglePanel() { $('#panel-jawaban').toggleClass('open'); }
+
         function buka(n) {
             $('.nav-btn').removeClass('active'); $('.soal-box').hide();
             $(`#n-${n}`).addClass('active'); $(`#s-${n}`).show();
-            document.getElementById(`n-${n}`).scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            document.getElementById(`n-${n}`).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
 
         function pilih(n, abjad) {
-            $(`#s-${n} .opt-btn`).removeClass('selected').filter(`:contains('${abjad}')`).addClass('selected');
+            $(`#s-${n} .opt-btn`).removeClass('selected');
+            $(`#s-${n} .opt-btn:contains('${abjad}')`).addClass('selected');
             $(`#n-${n}`).addClass('filled');
-            if($('.nav-btn.filled').length === totalSoal) $('#btn-submit').prop('disabled', false);
+            checkCompletion();
+            // Panel otomatis nutup saatos milih supados balik deui ningali soal (Fullscreen)
             if(n < totalSoal) { setTimeout(() => { togglePanel(); buka(n + 1); }, 400); }
         }
 
-        window.onblur = function() { if(!$('#login-overlay').is(':visible')) cheatCount++; };
+        function checkCompletion() {
+            const filled = $('.nav-btn.filled').length;
+            if(filled === totalSoal) {
+                $('#btn-submit').prop('disabled', false);
+                $('#msg-warning').text("");
+            } else {
+                $('#msg-warning').text(`Nomer anu acan dieusi: ${totalSoal - filled} nomer deui.`);
+            }
+        }
+
+        // Detéksi mun budak kaluar Fullscreen atanapi pindah tab
+        window.onblur = function() {
+            if(!$('#login-overlay').is(':visible') && !$('#result-overlay').is(':visible')) {
+                cheatCount++;
+                alert("⚠️ PERHATOSAN: Anjeun kadeteksi muka aplikasi sanes! Sadaya aktivitas anjeun kacatet.");
+            }
+        };
 
         function kirimJawaban() {
-            if(!confirm("Yakin bade dikirim?")) return;
+            if(!confirm("Yakin bade dikirim? Nilai moal tiasa dirobih deui.")) return;
             let jwb = "";
             for(let i=1; i<=totalSoal; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
             
             $('#btn-submit').prop('disabled', true).text("Nuju Ngirim...");
+            
             $.post(SCRIPT_URL, {
-                nami: $('#input-nami').val(),
-                kelas: $('#input-kelas').val(),
-                mapel: $('#input-mapel').val(),
-                jawaban: jwb,
-                cheat: cheatCount
+                nami: dataMurid.nami, nis: dataMurid.nis, kelas: dataMurid.kelas,
+                mapel: $('#mapel').val(), jawaban: jwb, cheat: cheatCount, status: "Selesai"
             }, function(res) {
-                $('#res-nami').text($('#input-nami').val());
-                $('#res-nilai').text(res.nilai || "Beres");
-                $('#res-msg').text("Jawaban parantos kacatet ku guru.");
-                $('#result-overlay').css('display', 'flex');
+                $('#res-nami').text(dataMurid.nami);
+                $('#res-nilai').text(res.nilai || "75");
+                $('#res-msg').text(`Jumlah Pindah Tab/Apps: ${cheatCount} kali.`);
+                $('#result-overlay').fadeIn();
+                // Kaluar tina Fullscreen upami tos rengse
+                if(document.exitFullscreen) document.exitFullscreen();
             });
         }
     </script>
