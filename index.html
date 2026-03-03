@@ -10,42 +10,48 @@
         :root { --primary: #1a73e8; --bg: #f8f9fa; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- TAMPILAN DESKTOP --- */
-        .pdf-container { flex: 1; background: #525659; position: relative; border-right: 2px solid #ddd; display: flex; flex-direction: column; }
+        /* --- TAMPILAN DESKTOP (Kénca-Katuhu) --- */
+        .pdf-container { flex: 1; background: #525659; position: relative; border-right: 2px solid #ddd; display: flex; flex-direction: column; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
         .sidebar { width: 380px; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; z-index: 10; }
-        
-        /* --- TAMPILAN RESPONSIVE HP --- */
+
+        /* --- TAMPILAN KHUSUS HP (STICKY PANEL) --- */
         @media (max-width: 768px) {
-            body { flex-direction: column; overflow-y: auto; height: auto; }
-            .pdf-container { height: 50vh; width: 100%; position: sticky; top: 0; z-index: 20; border-right: none; border-bottom: 3px solid #ddd; }
-            .sidebar { width: 100%; height: auto; min-height: 50vh; }
-            .nav-grid { grid-template-columns: repeat(5, 1fr) !important; padding: 10px !important; }
-            .options { padding: 0 15px !important; }
-            .opt-btn { padding: 12px !important; font-size: 16px !important; }
+            body { flex-direction: column; }
+            .pdf-container { height: 60vh; width: 100%; position: relative; border-right: none; border-bottom: 4px solid var(--primary); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+            .sidebar { width: 100%; height: 40vh; position: fixed; bottom: 0; border-radius: 20px 20px 0 0; }
+            
+            /* Nomer Soal tiasa di-geser ka gigir (Horizontal Scroll) */
+            .nav-grid { display: flex !important; overflow-x: auto; white-space: nowrap; padding: 8px !important; gap: 6px; background: #eee; border-bottom: 1px solid #ddd; }
+            .nav-btn { min-width: 45px; flex: 0 0 auto; padding: 8px 0 !important; font-size: 13px !important; }
+            
+            /* Pilihan A-E ngajajar ka gigir */
+            .options { flex-direction: row !important; justify-content: space-around; padding: 10px !important; gap: 5px !important; margin-top: 5px !important; }
+            .opt-btn { flex: 1; padding: 12px !important; font-size: 18px !important; margin: 0 !important; border-radius: 8px !important; }
+            
+            .header { padding: 8px !important; font-size: 11px !important; }
+            .jawaban-area { padding: 10px 0 !important; }
+            h2 { font-size: 15px !important; margin: 0 0 5px 0 !important; }
+            .footer { padding: 8px 15px !important; }
         }
 
+        /* STYLE UMUM */
         .header { padding: 15px; background: var(--primary); color: white; text-align: center; }
-        #login-form { padding: 20px; }
+        #login-form { padding: 20px; overflow-y: auto; height: 100%; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
-        
         #ujian-container { display: none; flex-direction: column; height: 100%; }
         .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; background: #f1f3f4; border-bottom: 1px solid #ddd; }
-        .nav-btn { padding: 10px 0; background: white; border: 1px solid #ccc; border-radius: 6px; text-align: center; cursor: pointer; font-size: 14px; font-weight: 600; }
+        .nav-btn { background: white; border: 1px solid #ccc; border-radius: 6px; text-align: center; cursor: pointer; font-weight: 600; }
         .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .nav-btn.filled { background: #ceead6; border-color: #34a853; }
-        
-        .jawaban-area { flex: 1; display: flex; align-items: center; justify-content: center; background: #fff; padding: 20px 0; }
+        .jawaban-area { flex: 1; display: flex; align-items: center; justify-content: center; background: #fff; }
         .soal-box { display: none; width: 100%; text-align: center; }
         .soal-box.active { display: block; }
-        .options { display: flex; flex-direction: column; gap: 10px; padding: 0 40px; margin-top: 10px; }
-        .opt-btn { padding: 15px; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 18px; transition: 0.2s; }
+        .options { display: flex; flex-direction: column; gap: 10px; padding: 0 40px; }
+        .opt-btn { padding: 15px; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 20px; transition: 0.2s; }
         .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
-        
         .footer { padding: 15px; border-top: 1px solid #eee; background: white; }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: inherit; }
-        
-        #data-konfirmasi { display:none; margin-top:15px; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .aturan-box { background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; font-size: 13px; margin-top: 10px; text-align: left; }
     </style>
 </head>
@@ -53,10 +59,7 @@
 
     <div class="pdf-container">
         <div id="pdf-msg" style="color:white; text-align:center; padding: 20px; margin-top:20%;">
-            <p>Soal PDF nembongan di dieu saatos milih Mapel.</p>
-            <a id="btn-manual" href="#" target="_blank" style="display:none; background:#ffc107; color:black; padding:10px; text-decoration:none; border-radius:5px; font-weight:bold; font-size:12px;">
-                KLIK IEU UPAMI SOAL TEU MUNCUL
-            </a>
+            <p>Soal PDF nembongan di dieu saatos Login.</p>
         </div>
         <iframe id="pdf-viewer" style="display:none;"></iframe>
     </div>
@@ -69,30 +72,23 @@
                 <input type="number" id="input-nis" placeholder="Conto: 12345">
                 <button onclick="cekSiswa()" id="btn-cek">CEK DATA SISWA</button>
             </div>
-
-            <div id="data-konfirmasi">
-                <p style="margin:0; font-size:12px; color:#555;">Wilujeng Sumping,</p>
+            <div id="data-konfirmasi" style="display:none;">
                 <h3 id="txt-nami" style="margin:5px 0; color:#1a73e8;"></h3>
                 <p id="txt-kelas" style="margin:0; font-weight:bold;"></p>
-                
-                <label style="font-size: 13px; font-weight: bold; margin-top: 15px; display: block;">Pilih Mata Pelajaran:</label>
-                <select id="mapel" onchange="tampilAturan()">
+                <select id="mapel" onchange="tampilAturan()" style="margin-top:10px;">
                     <option value="">-- Pilih Mapel --</option>
                     <option value="SUNDA">Basa Sunda</option>
                     <option value="SENI">Seni Budaya</option>
                 </select>
-
                 <div id="box-aturan" class="aturan-box" style="display:none;">
-                    <strong style="color: #856404;">⚠️ ATURAN UJIAN:</strong>
-                    <div id="teks-aturan" style="margin-top: 5px; color: #856404;"></div>
+                    <div id="teks-aturan"></div>
                 </div>
-
                 <button id="btn-mulai" onclick="mulaiUjian()" style="display:none; background:#1e8e3e; margin-top:15px; font-weight: bold;">MIMITIAN UJIAN</button>
             </div>
         </div>
 
         <div id="ujian-container">
-            <div class="header"><span id="info-header"></span></div>
+            <div class="header"><span id="info-header" style="font-size: 12px;"></span></div>
             <div class="nav-grid" id="nav-grid"></div>
             <div class="jawaban-area" id="jawaban-area"></div>
             <div class="footer">
@@ -109,7 +105,7 @@
         function cekSiswa() {
             const nis = $('#input-nis').val();
             if(!nis) return alert("Eusian NIS heula!");
-            $('#btn-cek').prop('disabled', true).text("Nuju mariksa...");
+            $('#btn-cek').prop('disabled', true).text("Mariksa...");
             $.getJSON(SCRIPT_URL + "?action=checkNIS&nis=" + nis, function(res) {
                 if(res.found) {
                     dataMurid = res; dataMurid.nis = nis;
@@ -126,8 +122,7 @@
         function tampilAturan() {
             const mp = $('#mapel').val();
             if (!mp) { $('#box-aturan, #btn-mulai').hide(); return; }
-            let info = (mp === "SUNDA") ? "Pilih jawaban nu pangmerenahna (1-5 poin)." : "Pilih jawaban dumasar tingkatan (1-5 poin).";
-            $('#teks-aturan').html(`<ul style="margin:5px 0; padding-left:15px;"><li>${info}</li><li>Ulah pindah tab browser!</li></ul>`);
+            $('#teks-aturan').html(`<b>Aturan:</b> Pilih jawaban dumasar soal PDF (Poin 1-5). Ulah pindah tab browser!`);
             $('#box-aturan, #btn-mulai').fadeIn();
         }
 
@@ -137,32 +132,27 @@
             $('#ujian-container').css('display', 'flex');
             $('#info-header').html(`<b>${dataMurid.nami}</b> | ${mp}`);
             
-            // Path PDF sareng Google Viewer kanggo HP
             const pdfUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mp}.pdf`;
-            const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+            const gViewer = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
             
             $('#pdf-msg').hide();
-            $('#pdf-viewer').attr('src', viewerUrl).show();
-            $('#btn-manual').attr('href', pdfUrl).show();
+            $('#pdf-viewer').attr('src', gViewer).show();
 
             let navH = ''; let soalH = '';
             for(let i=1; i<=25; i++) {
                 navH += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
-                soalH += `<div class="soal-box" id="s-${i}"><h2 style="margin:10px 0">Nomer ${i}</h2><div class="options"><div class="opt-btn" onclick="pilih(${i},'A')">A</div><div class="opt-btn" onclick="pilih(${i},'B')">B</div><div class="opt-btn" onclick="pilih(${i},'C')">C</div><div class="opt-btn" onclick="pilih(${i},'D')">D</div><div class="opt-btn" onclick="pilih(${i},'E')">E</div></div></div>`;
+                soalH += `<div class="soal-box" id="s-${i}"><h2 style="margin:0">Nomer ${i}</h2><div class="options"><div class="opt-btn" onclick="pilih(${i},'A')">A</div><div class="opt-btn" onclick="pilih(${i},'B')">B</div><div class="opt-btn" onclick="pilih(${i},'C')">C</div><div class="opt-btn" onclick="pilih(${i},'D')">D</div><div class="opt-btn" onclick="pilih(${i},'E')">E</div></div></div>`;
             }
             $('#nav-grid').html(navH); $('#jawaban-area').html(soalH);
             buka(1);
-            if(!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                document.documentElement.requestFullscreen().catch(e => {});
-            }
         }
 
         function buka(n) {
             $('.nav-btn').removeClass('active'); $('.soal-box').removeClass('active');
             $(`#n-${n}`).addClass('active'); $(`#s-${n}`).addClass('active');
-            if(window.innerWidth <= 768) {
-                document.getElementById('ujian-container').scrollIntoView({behavior: "smooth"});
-            }
+            // Auto scroll ka tengah dumasar nomer aktip (khusus HP)
+            const activeBtn = document.getElementById(`n-${n}`);
+            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
 
         function pilih(n, abjad) {
@@ -175,7 +165,7 @@
         window.onblur = function() {
             if($('#ujian-container').is(':visible')) {
                 cheat++;
-                alert("⚠️ TEU KÉNGING PINDAH TAB!");
+                alert("⚠️ NYONTÉK KACATET!");
             }
         };
 
@@ -183,7 +173,7 @@
             if(!confirm("Yakin bade dikirim?")) return;
             let jwb = "";
             for(let i=1; i<=25; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
-            $('#btn-submit').prop('disabled', true).text("Nuju ngirim...");
+            $('#btn-submit').prop('disabled', true).text("Ngirim...");
             $.post(SCRIPT_URL, {
                 nami: dataMurid.nami, nis: dataMurid.nis, kelas: dataMurid.kelas,
                 mapel: $('#mapel').val(), jawaban: jwb, cheat: cheat, status: "Selesai"
