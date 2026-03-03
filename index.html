@@ -3,166 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>PTS 2026 - RULES</title>
+    <title>SISTEM UJIAN PTS 2026</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { 
             --primary: #1a73e8; 
-            --primary-dark: #1557b0;
-            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            --danger: #d93025;
+            --bg-gradient: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            --danger: #ff0000;
             --success: #1e8e3e;
         }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Poppins', sans-serif; }
 
-        /* --- TAMPILAN LOGIN PRO --- */
+        /* --- LOGIN SCREEN --- */
         #login-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: var(--bg-gradient); 
-            z-index: 2001; padding: 20px; 
+            background: var(--bg-gradient); z-index: 2001; padding: 20px; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px 30px;
-            border-radius: 28px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-            text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.98); padding: 40px 30px; border-radius: 20px;
+            width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
-
-        .brand-logo {
-            font-size: 36px;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-        }
-
-        .login-subtitle { color: #666; font-size: 14px; margin-bottom: 30px; }
-
         input[type="number"], select {
-            width: 100%; padding: 16px; margin-bottom: 15px;
-            border: 2px solid #eee; border-radius: 16px;
-            font-size: 16px; font-family: inherit; outline: none;
-            transition: 0.3s; background: #fdfdfd; text-align: center;
+            width: 100%; padding: 15px; margin-bottom: 12px; border: 2px solid #ddd;
+            border-radius: 12px; font-size: 16px; outline: none; text-align: center;
         }
-
-        input:focus, select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(26,115,232,0.1); }
-
         .btn-pro {
             background: var(--primary); color: white; border: none; padding: 18px;
-            width: 100%; border-radius: 16px; font-weight: 600; font-size: 16px;
-            cursor: pointer; transition: 0.3s; box-shadow: 0 8px 15px rgba(26,115,232,0.2);
+            width: 100%; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer;
         }
 
-        .btn-pro:active { transform: scale(0.98); }
-        .btn-pro:disabled { background: #ccc; box-shadow: none; }
-
-        .info-box {
-            background: #f0f7ff; padding: 20px; border-radius: 18px;
-            margin-bottom: 20px; border: 1px solid #c2e0ff;
+        /* --- NOTIFIKASI PELANGGARAN PERMANENT --- */
+        #notif-pelanggaran {
+            position: fixed; top: 0; left: 0; width: 100%; background: var(--danger);
+            color: white; text-align: center; padding: 10px; font-weight: bold;
+            z-index: 3000; display: none; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        /* --- AREA UTAMA UJIAN --- */
-        .pdf-container { width: 100%; height: 100vh; background: #525659; position: absolute; top:0; left:0; z-index: 1; }
-        iframe { width: 100%; height: 100%; border: none; }
+        /* --- PDF AREA (OPTIMIZED) --- */
+        .pdf-container { width: 100%; height: 100vh; background: #333; position: absolute; top:0; left:0; z-index: 1; }
+        embed, iframe { width: 100%; height: 100%; border: none; }
 
+        /* --- PANEL JAWABAN --- */
         #btn-toggle-panel {
             position: fixed; bottom: 25px; right: 20px; z-index: 999;
             background: var(--danger); color: white; border: 2px solid white;
-            padding: 15px 25px; border-radius: 50px; font-weight: bold;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4); display: none;
+            padding: 15px 25px; border-radius: 50px; font-weight: bold; display: none;
         }
-
         .sidebar {
-            position: fixed; bottom: -100%; left: 0; width: 100%; height: 65vh;
-            background: white; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 35px 35px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column;
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 60vh;
+            background: white; z-index: 1000; transition: 0.4s ease-out;
+            border-radius: 25px 25px 0 0; display: flex; flex-direction: column;
         }
         .sidebar.open { bottom: 0; }
+        .nav-grid { display: flex; overflow-x: auto; padding: 15px; gap: 8px; background: #eee; }
+        .nav-btn { min-width: 45px; height: 45px; background: white; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex: 0 0 auto; }
+        .nav-btn.active { background: var(--primary); color: white; }
+        .nav-btn.filled { background: var(--success); color: white; }
 
-        .panel-handle { width: 100%; height: 45px; background: #f1f3f4; border-radius: 35px 35px 0 0; display: flex; align-items: center; justify-content: center; }
-        .handle-bar { width: 50px; height: 6px; background: #ccc; border-radius: 3px; }
+        .options { display: flex; gap: 10px; width: 100%; max-width: 450px; padding: 20px; }
+        .opt-btn { flex: 1; padding: 20px 0; border: 2px solid #ddd; border-radius: 12px; text-align: center; font-weight: bold; font-size: 22px; background: #fff; }
+        .opt-btn.selected { background: var(--primary); color: white; }
 
-        .nav-grid { display: flex; overflow-x: auto; padding: 15px; gap: 10px; background: #fff; border-bottom: 1px solid #ddd; }
-        .nav-btn { min-width: 48px; height: 48px; background: #f1f3f4; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex: 0 0 auto; }
-        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .nav-btn.filled { background: var(--success); color: white; border-color: #166e2f; }
-
-        .jawaban-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
-        .options { display: flex; gap: 10px; width: 100%; max-width: 450px; padding: 0 15px; }
-        .opt-btn { flex: 1; padding: 22px 0; border: 2px solid #ddd; border-radius: 18px; text-align: center; font-weight: bold; font-size: 24px; background: #fff; transition: 0.2s; }
-        .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); transform: scale(0.95); }
-
-        /* --- RESULT OVERLAY --- */
         #result-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: white; z-index: 2002; display: none; 
-            flex-direction: column; justify-content: center; align-items: center; padding: 30px;
+            background: white; z-index: 4000; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center;
         }
-        .score-circle { width: 160px; height: 160px; border: 12px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 55px; font-weight: 800; color: var(--primary); margin: 25px 0; }
     </style>
 </head>
 <body>
 
+    <div id="notif-pelanggaran">⚠️ PELANGGARAN KADETEKSI! AKTIVITAS ANJEUN KACATET!</div>
+
     <div id="login-overlay">
         <div class="login-card">
-            <div class="brand-logo">RULES</div>
-            <div class="login-subtitle">Penilaian Tengah Semester 2026</div>
+            <h2 style="margin-top:0; color:var(--primary);">PTS 2026</h2>
+            <p style="font-size:12px; color:#666;">Lebetkeun NIS kanggo ngamimitian ujian.</p>
 
             <div id="box-login">
-                <input type="number" id="input-nis" placeholder="Lebetkeun NIS Anjeun..." inputmode="numeric">
-                <button class="btn-pro" onclick="cekSiswa()" id="btn-cek">MASUK SISTEM</button>
+                <input type="number" id="input-nis" placeholder="NIS Anjeun..." inputmode="numeric">
+                <button class="btn-pro" onclick="cekSiswa()" id="btn-cek">LOGIN</button>
             </div>
 
             <div id="box-konfirmasi" style="display:none;">
-                <div class="info-box">
-                    <p style="font-size:13px; color:#555; margin:0;">Wilujeng sumping,</p>
-                    <b id="txt-nami" style="font-size:20px; color:#111;"></b>
+                <div style="background:#f0f7ff; padding:15px; border-radius:12px; margin-bottom:15px;">
+                    <b id="txt-nami" style="font-size:18px;"></b>
                 </div>
                 <select id="mapel" onchange="$('#btn-mulai').prop('disabled', false)">
-                    <option value="">-- Pilih Mata Pelajaran --</option>
+                    <option value="">-- Pilih Mapel --</option>
                     <option value="SUNDA">Basa Sunda</option>
                     <option value="SENI">Seni Budaya</option>
                 </select>
-                <button id="btn-mulai" class="btn-pro" disabled onclick="mulaiUjian()" style="margin-top:10px;">MIMITIAN UJIAN</button>
+                <button id="btn-mulai" class="btn-pro" disabled onclick="mulaiUjian()">MIMITIAN UJIAN</button>
             </div>
-            <p style="margin-top: 30px; font-size: 11px; color: #aaa;">&copy; 2026 RULES Examination System</p>
         </div>
     </div>
 
     <div id="result-overlay">
-        <h2 style="color: var(--success); margin:0;">UJIAN RENGSE!</h2>
-        <div class="score-circle" id="res-nilai">0</div>
-        <p style="font-size: 18px; margin:0;"><b id="res-nami"></b></p>
-        <p id="res-msg" style="color:#d93025; font-weight:bold; margin-top:15px; font-size:13px;"></p>
-        <button class="btn-pro" onclick="location.reload()" style="max-width:200px; margin-top:20px;">KALUAR</button>
+        <h2 style="color:var(--success);">UJIAN RENGSE!</h2>
+        <div style="font-size:60px; font-weight:800; color:var(--primary);" id="res-nilai">0</div>
+        <p><b id="res-nami"></b></p>
+        <p id="res-msg" style="color:red; font-weight:bold;"></p>
+        <button class="btn-pro" onclick="location.reload()" style="max-width:200px;">KALUAR</button>
     </div>
 
     <div class="pdf-container">
-        <iframe id="pdf-viewer"></iframe>
+        <embed id="pdf-viewer" type="application/pdf">
     </div>
 
     <button id="btn-toggle-panel" onclick="togglePanel()">📝 JAWAB</button>
 
     <div class="sidebar" id="panel-jawaban">
-        <div class="panel-handle" onclick="togglePanel()"><div class="handle-bar"></div></div>
         <div class="nav-grid" id="nav-grid"></div>
-        <div class="jawaban-area" id="jawaban-area"></div>
-        <div style="padding: 15px 30px 30px;">
-            <p id="msg-warning" style="color:red; font-size:12px; text-align:center; margin-bottom:10px; font-weight:600;"></p>
-            <button onclick="kirimJawaban()" id="btn-submit" class="btn-pro" disabled style="background: var(--success);">KIRIM JAWABAN</button>
+        <div id="jawaban-area" style="flex:1; display:flex; align-items:center; justify-content:center;"></div>
+        <div style="padding: 20px;">
+            <button onclick="kirimJawaban()" id="btn-submit" class="btn-pro" disabled style="background:var(--success);">KIRIM JAWABAN</button>
         </div>
     </div>
 
@@ -173,37 +132,35 @@
         function cekSiswa() {
             const nis = $('#input-nis').val();
             if(!nis) return alert("Eusian NIS!");
-            $('#btn-cek').prop('disabled', true).text("Nuju Mariksa...");
+            $('#btn-cek').prop('disabled', true).text("Mariksa...");
             $.getJSON(SCRIPT_URL + "?action=checkNIS&nis=" + nis, function(res) {
                 if(res.found) {
                     dataMurid = res; dataMurid.nis = nis;
-                    $('#box-login').hide(); $('#txt-nami').text(res.nami); $('#box-konfirmasi').fadeIn();
+                    $('#box-login').hide(); $('#txt-nami').text(res.nami); $('#box-konfirmasi').show();
                 } else {
-                    alert("NIS Teu Kapendak!"); $('#btn-cek').prop('disabled', false).text("MASUK SISTEM");
+                    alert("NIS Teu Kapendak!"); $('#btn-cek').prop('disabled', false).text("LOGIN");
                 }
-            }).fail(function() {
-                alert("Gagal nyambung ka server!"); $('#btn-cek').prop('disabled', false).text("MASUK SISTEM");
             });
         }
 
         function mulaiUjian() {
-            // Fullscreen mode
+            const mp = $('#mapel').val();
+            // Fullscreen
             const el = document.documentElement;
             if(el.requestFullscreen) el.requestFullscreen();
-            else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
             $('#login-overlay').fadeOut();
             $('#btn-toggle-panel').fadeIn();
             
-            const mp = $('#mapel').val();
+            // GANTI PDF VIEWER LANGSUNG (LEUWIH GANCANG)
             const pdfUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mp}.pdf`;
-            $('#pdf-viewer').attr('src', `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`);
+            $('#pdf-viewer').attr('src', pdfUrl);
 
             let navH = '', soalH = '';
             for(let i=1; i<=totalSoal; i++) {
                 navH += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
                 soalH += `<div class="soal-box" id="s-${i}" style="display:none; width:100%; text-align:center;">
-                            <h3 style="margin-bottom:20px; color:var(--primary);">SOAL NOMER ${i}</h3>
+                            <h3>NOMER ${i}</h3>
                             <div class="options">
                                 <div class="opt-btn" onclick="pilih(${i},'A')">A</div>
                                 <div class="opt-btn" onclick="pilih(${i},'B')">B</div>
@@ -221,53 +178,40 @@
         function buka(n) {
             $('.nav-btn').removeClass('active'); $('.soal-box').hide();
             $(`#n-${n}`).addClass('active'); $(`#s-${n}`).show();
-            document.getElementById(`n-${n}`).scrollIntoView({ behavior: 'smooth', inline: 'center' });
         }
 
         function pilih(n, abjad) {
             $(`#s-${n} .opt-btn`).removeClass('selected');
             $(`#s-${n} .opt-btn:contains('${abjad}')`).addClass('selected');
             $(`#n-${n}`).addClass('filled');
-            checkCompletion();
+            if($('.nav-btn.filled').length === totalSoal) $('#btn-submit').prop('disabled', false);
             if(n < totalSoal) { setTimeout(() => { togglePanel(); buka(n + 1); }, 400); }
         }
 
-        function checkCompletion() {
-            const filled = $('.nav-btn.filled').length;
-            if(filled === totalSoal) {
-                $('#btn-submit').prop('disabled', false);
-                $('#msg-warning').text("");
-            } else {
-                $('#msg-warning').text(`${totalSoal - filled} nomer deui anu acan dieusi.`);
-            }
-        }
-
+        // --- ANTI CHAT PERMANENT NOTIF ---
         window.onblur = function() {
             if(!$('#login-overlay').is(':visible') && !$('#result-overlay').is(':visible')) {
                 cheatCount++;
-                console.log("Cheat Count: " + cheatCount);
+                $('#notif-pelanggaran').slideDown(); // Notif munjul permanent
+                alert("PELANGGARAN!\nAnjeun kaluar tina layar ujian!");
             }
         };
 
         function kirimJawaban() {
-            if(!confirm("Yakin bade dikirim?")) return;
+            if(!confirm("Kirim jawaban?")) return;
             let jwb = "";
             for(let i=1; i<=totalSoal; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
             
-            $('#btn-submit').prop('disabled', true).text("Nuju Ngirim...");
-            
+            $('#btn-submit').prop('disabled', true).text("Ngirim...");
             $.post(SCRIPT_URL, {
                 nami: dataMurid.nami, nis: dataMurid.nis, kelas: dataMurid.kelas,
                 mapel: $('#mapel').val(), jawaban: jwb, cheat: cheatCount
             }, function(res) {
                 $('#res-nami').text(dataMurid.nami);
                 $('#res-nilai').text(res.nilai || "0");
-                $('#res-msg').text(`Catetan: Pindah Tab/Apps ${cheatCount} kali.`);
+                $('#res-msg').text(`Pelanggaran: ${cheatCount} kali.`);
                 $('#result-overlay').fadeIn();
-                if(document.exitFullscreen) document.exitFullscreen();
-            }).fail(function() {
-                alert("Gagal ngirim! Cek sinyal internet.");
-                $('#btn-submit').prop('disabled', false).text("KIRIM JAWABAN");
+                $('#notif-pelanggaran').hide();
             });
         }
     </script>
