@@ -3,78 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SISTEM UJIAN PTS 2026</title>
+    <title>PTS 2026 - SISTEM UJIAN AMAN</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #1a73e8; 
-            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            --danger: #ff0000;
-            --success: #1e8e3e;
-        }
-        
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Poppins', sans-serif; }
+        :root { --primary: #1a73e8; --danger: #ff0000; --success: #1e8e3e; --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Poppins', sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-        /* NOTIF PELANGGARAN PERMANENT (TETEP AYA MUN NYONTEK) */
-        #notif-pelanggaran {
-            position: fixed; top: 0; left: 0; width: 100%; background: var(--danger);
-            color: white; text-align: center; padding: 12px; font-weight: bold;
-            z-index: 5000; display: none; font-size: 13px; text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(255,0,0,0.5);
-        }
+        /* NOTIF PERMANENT PELANGGARAN */
+        #notif-pelanggaran { position: fixed; top: 0; left: 0; width: 100%; background: var(--danger); color: white; text-align: center; padding: 12px; font-weight: bold; z-index: 5000; display: none; font-size: 13px; box-shadow: 0 4px 15px rgba(255,0,0,0.5); }
 
-        /* LOGIN SCREEN PRO */
-        #login-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: var(--bg-gradient); z-index: 2001; padding: 20px; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .login-card {
-            background: rgba(255, 255, 255, 0.98); padding: 40px 30px; border-radius: 25px;
-            width: 100%; max-width: 420px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-        input[type="number"], select {
-            width: 100%; padding: 16px; margin-bottom: 15px; border: 2px solid #eee;
-            border-radius: 15px; font-size: 16px; outline: none; text-align: center; background: #fdfdfd;
-        }
-        .btn-pro {
-            background: var(--primary); color: white; border: none; padding: 18px;
-            width: 100%; border-radius: 15px; font-weight: 600; font-size: 16px; cursor: pointer;
-        }
+        /* LOGIN SCREEN */
+        #login-overlay { position: fixed; inset: 0; background: var(--bg-gradient); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .card { background: white; padding: 35px; border-radius: 25px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        input, select, .btn-pro { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 15px; border: 2px solid #eee; font-size: 16px; outline: none; }
+        .btn-pro { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .btn-pro:disabled { background: #ccc; }
 
-        /* PDF AREA */
-        .pdf-container { width: 100%; height: 100vh; background: #525659; position: absolute; top:0; left:0; z-index: 1; }
-        #pdf-viewer { width: 100%; height: 100%; border: none; display: block; }
+        /* PDF & PANEL JAWABAN */
+        .pdf-container { width: 100%; height: 100vh; background: #525659; }
+        #pdf-viewer { width: 100%; height: 100%; border: none; }
+        #btn-jawab { position: fixed; bottom: 25px; right: 20px; z-index: 999; background: var(--danger); color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
-        /* PANEL JAWABAN */
-        #btn-toggle-panel {
-            position: fixed; bottom: 25px; right: 20px; z-index: 999;
-            background: var(--danger); color: white; border: 2px solid white;
-            padding: 15px 25px; border-radius: 50px; font-weight: bold; display: none;
-        }
-        .sidebar {
-            position: fixed; bottom: -100%; left: 0; width: 100%; height: 60vh;
-            background: white; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 30px 30px 0 0; display: flex; flex-direction: column;
-        }
+        .sidebar { position: fixed; bottom: -100%; left: 0; width: 100%; height: 60vh; background: white; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 30px 30px 0 0; display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.3); }
         .sidebar.open { bottom: 0; }
-        .nav-grid { display: flex; overflow-x: auto; padding: 15px; gap: 10px; background: #fff; border-bottom: 1px solid #ddd; }
-        .nav-btn { min-width: 45px; height: 45px; background: #f1f3f4; border: 1px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex: 0 0 auto; }
+        .nav-grid { display: flex; overflow-x: auto; padding: 15px; gap: 10px; border-bottom: 1px solid #eee; background: #fdfdfd; }
+        .nav-btn { min-width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; cursor: pointer; }
         .nav-btn.active { background: var(--primary); color: white; }
         .nav-btn.filled { background: var(--success); color: white; }
+        
+        .opt-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .opt-row { display: flex; gap: 8px; width: 100%; max-width: 450px; }
+        .opt-btn { flex: 1; padding: 20px 0; border: 2px solid #ddd; border-radius: 15px; font-weight: 800; font-size: 22px; text-align: center; background: white; transition: 0.2s; }
+        .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .options { display: flex; gap: 8px; width: 100%; max-width: 450px; padding: 20px; }
-        .opt-btn { flex: 1; padding: 20px 0; border: 2px solid #ddd; border-radius: 15px; text-align: center; font-weight: bold; font-size: 22px; background: #fff; }
-        .opt-btn.selected { background: var(--primary); color: white; }
-
-        /* HASIL AKHIR */
-        #result-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: white; z-index: 6000; display: none; 
-            flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center;
-        }
+        /* RESULT OVERLAY */
+        #result { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; }
     </style>
 </head>
 <body>
@@ -82,17 +47,17 @@
     <div id="notif-pelanggaran">⚠️ PELANGGARAN KADETEKSI! AKTIVITAS ANJEUN KACATET KU GURU!</div>
 
     <div id="login-overlay">
-        <div class="login-card">
-            <h1 style="color:var(--primary); margin-top:0;">PTS 2026</h1>
-            <p style="font-size:14px; color:#666; margin-bottom:25px;">Sistem Ujian Online Aman</p>
-
+        <div class="card">
+            <h1 style="color:var(--primary); margin:0 0 10px 0;">PTS 2026</h1>
+            <p style="font-size:14px; color:#666; margin-bottom:25px;">Sistem Ujian Otomatis</p>
+            
             <div id="box-login">
                 <input type="number" id="input-nis" placeholder="Lebetkeun NIS..." inputmode="numeric">
                 <button class="btn-pro" onclick="cekSiswa()" id="btn-cek">MASUK SISTEM</button>
             </div>
 
             <div id="box-konfirmasi" style="display:none;">
-                <div style="background:#f0f7ff; padding:20px; border-radius:15px; margin-bottom:15px; border:1px solid #c2e0ff;">
+                <div style="background:#f0f7ff; padding:15px; border-radius:15px; margin-bottom:15px; border:1px solid #c2e0ff;">
                     <p style="margin:0; font-size:12px; color:#555;">Wilujeng sumping,</p>
                     <b id="txt-nami" style="font-size:18px; color:#111;"></b>
                 </div>
@@ -106,34 +71,34 @@
         </div>
     </div>
 
-    <div id="result-overlay">
-        <h2 style="color:var(--success); margin:0;">UJIAN RENGSE!</h2>
-        <div style="font-size:60px; font-weight:800; color:var(--primary); margin:20px 0;" id="res-peunteun">0</div>
-        <p style="font-size:18px;"><b id="res-nami"></b></p>
-        <p id="res-msg" style="color:red; font-weight:bold; margin-top:10px;"></p>
-        <button class="btn-pro" onclick="location.reload()" style="max-width:220px; margin-top:20px;">KALUAR SISTEM</button>
+    <div id="result">
+        <h2 id="res-title">HASIL UJIAN</h2>
+        <div id="p-skor" style="font-size: 85px; font-weight: 800; margin: 10px 0;">0</div>
+        <p><b id="p-nami" style="font-size: 18px;"></b></p>
+        <p id="res-msg" style="margin: 10px 0 30px 0; padding: 0 20px; font-size: 15px;"></p>
+        <button id="btn-hasil-aksi" class="btn-pro" style="max-width:280px;"></button>
     </div>
 
-    <div class="pdf-container">
-        <iframe id="pdf-viewer" src="about:blank"></iframe>
-    </div>
+    <div class="pdf-container"><iframe id="pdf-viewer" src="about:blank"></iframe></div>
+    <button id="btn-jawab" onclick="$('.sidebar').toggleClass('open')">📝 JAWAB</button>
 
-    <button id="btn-toggle-panel" onclick="togglePanel()">📝 JAWAB</button>
-
-    <div class="sidebar" id="panel-jawaban">
-        <div style="height:45px; display:flex; align-items:center; justify-content:center;" onclick="togglePanel()">
-            <div style="width:50px; height:5px; background:#ccc; border-radius:3px;"></div>
+    <div class="sidebar">
+        <div style="height:40px; display:flex; align-items:center; justify-content:center;" onclick="$('.sidebar').removeClass('open')">
+            <div style="width:40px; height:4px; background:#ccc; border-radius:2px;"></div>
         </div>
-        <div class="nav-grid" id="nav-grid"></div>
-        <div id="jawaban-area" style="flex:1; display:flex; align-items:center; justify-content:center;"></div>
-        <div style="padding: 20px 25px 30px;">
-            <button onclick="kirimJawaban()" id="btn-submit" class="btn-pro" disabled style="background:var(--success);">KIRIM JAWABAN</button>
+        <div class="nav-grid" id="nav"></div>
+        <div class="opt-area">
+            <h3 id="nomer-aktif" style="margin:0 0 15px 0; color:var(--primary);">Nomer 1</h3>
+            <div class="opt-row" id="opt"></div>
+        </div>
+        <div style="padding: 20px 30px 40px;">
+            <button id="btn-kirim" class="btn-pro" disabled onclick="kirimJawaban()" style="background:var(--success); margin:0;">KIRIM JAWABAN</button>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPw-5z_k6simejXhQarFcNYbP07_rSxQvAhOR8Cucv2k5qJo5gcce4Nx7i8j7XKcchNQ/exec";
-        let dataMurid = {}, cheatCount = 0, totalSoal = 25;
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyqxLqX1pE1dbyRdj48UuP9xjRkj3VT-JZ-yV09KZsV1IcFhtsJ1Ph9ePLsFNt3zw1nA/exec";
+        let user = {}, cheats = 0, totalSoal = 25;
 
         function cekSiswa() {
             const nis = $('#input-nis').val();
@@ -141,7 +106,7 @@
             $('#btn-cek').prop('disabled', true).text("Mariksa...");
             $.getJSON(SCRIPT_URL + "?action=checkNIS&nis=" + nis, function(res) {
                 if(res.found) {
-                    dataMurid = res; dataMurid.nis = nis;
+                    user = res; user.nis = nis;
                     $('#box-login').hide(); $('#txt-nami').text(res.nami); $('#box-konfirmasi').fadeIn();
                 } else {
                     alert("NIS Teu Kapendak!"); $('#btn-cek').prop('disabled', false).text("MASUK SISTEM");
@@ -151,82 +116,83 @@
 
         function mulaiUjian() {
             const mp = $('#mapel').val();
-            const el = document.documentElement;
-            if(el.requestFullscreen) el.requestFullscreen();
-
+            if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
             $('#login-overlay').fadeOut();
-            $('#btn-toggle-panel').fadeIn();
             
-            // PDF AUTO-VIEW TANPA KLIK
-            const pdfFileUrl = window.location.origin + window.location.pathname.replace('index.html', '') + `pdf/${mp}.pdf`;
-            const finalPdfUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfFileUrl)}&embedded=true`;
-            $('#pdf-viewer').attr('src', finalPdfUrl);
-
-            let navH = '', soalH = '';
+            const pdfUrl = window.location.origin + window.location.pathname.replace('index.html','') + `pdf/${mp}.pdf`;
+            $('#pdf-viewer').attr('src', `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`);
+            
+            let navH = ''; 
             for(let i=1; i<=totalSoal; i++) {
-                navH += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
-                soalH += `<div class="soal-box" id="s-${i}" style="display:none; width:100%; text-align:center;">
-                            <h3 style="margin-bottom:15px; color:var(--primary);">NOMER ${i}</h3>
-                            <div class="options">
-                                <div class="opt-btn" onclick="pilih(${i},'A')">A</div>
-                                <div class="opt-btn" onclick="pilih(${i},'B')">B</div>
-                                <div class="opt-btn" onclick="pilih(${i},'C')">C</div>
-                                <div class="opt-btn" onclick="pilih(${i},'D')">D</div>
-                                <div class="opt-btn" onclick="pilih(${i},'E')">E</div>
-                            </div>
-                         </div>`;
+                navH += `<div class="nav-btn" id="n-${i}" onclick="bukaSoal(${i})">${i}</div>`;
             }
-            $('#nav-grid').html(navH); $('#jawaban-area').html(soalH);
-            buka(1);
+            $('#nav').html(navH); 
+            bukaSoal(1);
         }
 
-        function togglePanel() { $('#panel-jawaban').toggleClass('open'); }
-        function buka(n) {
-            $('.nav-btn').removeClass('active'); $('.soal-box').hide();
-            $(`#n-${n}`).addClass('active'); $(`#s-${n}`).show();
+        function bukaSoal(n) {
+            $('.nav-btn').removeClass('active'); 
+            $(`#n-${n}`).addClass('active');
+            $('#nomer-aktif').text("Nomer " + n);
+            
+            let h = '';
+            ['A','B','C','D','E'].forEach(v => {
+                let sel = ($(`#n-${n}`).data('ans') == v) ? 'selected' : '';
+                h += `<div class="opt-btn ${sel}" onclick="pilihJawaban(${n},'${v}')">${v}</div>`;
+            });
+            $('#opt').html(h);
             document.getElementById(`n-${n}`).scrollIntoView({ behavior: 'smooth', inline: 'center' });
         }
 
-        function pilih(n, abjad) {
-            $(`#s-${n} .opt-btn`).removeClass('selected').filter(`:contains('${abjad}')`).addClass('selected');
-            $(`#n-${n}`).addClass('filled');
-            if($('.nav-btn.filled').length === totalSoal) $('#btn-submit').prop('disabled', false);
-            if(n < totalSoal) { setTimeout(() => { togglePanel(); buka(n + 1); }, 400); }
+        function pilihJawaban(n, v) {
+            $(`#n-${n}`).addClass('filled').data('ans', v);
+            $('.opt-btn').removeClass('selected');
+            $(`.opt-btn:contains(${v})`).addClass('selected');
+            
+            if($('.nav-btn.filled').length == totalSoal) $('#btn-kirim').prop('disabled', false);
+            if(n < totalSoal) setTimeout(() => bukaSoal(n+1), 300);
         }
 
-        // --- NOTIF PERMANENT MUN NYONTEK ---
         window.onblur = function() {
-            if(!$('#login-overlay').is(':visible') && !$('#result-overlay').is(':visible')) {
-                cheatCount++;
+            if(!$('#login-overlay').is(':visible') && !$('#result').is(':visible')) {
+                cheats++;
                 $('#notif-pelanggaran').slideDown();
-                alert("⚠️ PELANGGARAN!\nUlah muka aplikasi sanes atanapi pindah tab!\nAktivitas anjeun kacatet ku guru.");
+                alert("⚠️ PELANGGARAN!\nUlah muka aplikasi sanes!\nAktivitas anjeun parantos kacatet.");
             }
         };
 
         function kirimJawaban() {
-            if(!confirm("Kirim jawaban ayeuna?")) return;
-            let jwb = "";
-            for(let i=1; i<=totalSoal; i++) { jwb += $(`#s-${i} .opt-btn.selected`).text() || "-"; }
+            if(!confirm("Yakin bade dikirim ayeuna?")) return;
+            let jwb = ""; 
+            for(let i=1; i<=totalSoal; i++) { jwb += $(`#n-${i}`).data('ans') || "-"; }
             
-            $('#btn-submit').prop('disabled', true).text("Nuju Ngirim...");
+            $('#btn-kirim').prop('disabled', true).text("Nuju Ngirim...");
             
             $.post(SCRIPT_URL, {
-                nami: dataMurid.nami, nis: dataMurid.nis, kelas: dataMurid.kelas,
-                mapel: $('#mapel').val(), jawaban: jwb, cheat: cheatCount
+                nami: user.nami, nis: user.nis, kelas: user.kelas,
+                mapel: $('#mapel').val(), jawaban: jwb, cheat: cheats
             }, function(res) {
-                // UPDATE: Nganggo 'peunteun' dumasar kana koding Code.gs Akang
-                let pnt = (res && res.peunteun !== undefined) ? res.peunteun : "0";
+                let data = (typeof res === 'object') ? res : JSON.parse(res);
+                let skor = parseInt(data.peunteun);
                 
-                $('#res-nami').text(dataMurid.nami);
-                $('#res-peunteun').text(pnt); 
-                $('#res-msg').text(`Jumlah Pelanggaran: ${cheatCount} kali.`);
-                
-                $('#result-overlay').fadeIn();
-                $('#notif-pelanggaran').hide();
+                $('#p-skor').text(skor);
+                $('#p-nami').text(user.nami);
+
+                // LOGIKA KKM 85
+                if (skor < 85) {
+                    $('#res-title').text("HAMPURA, TEU LULUS!").css('color', 'red');
+                    $('#p-skor').css('color', 'red');
+                    $('#res-msg').html(`<b style="color:red">Peunteun anjeun ${skor}, sahandapeun 85.<br>Mangga balikan deui ujianana nepi ka lulus!</b>`);
+                    $('#btn-hasil-aksi').text("REMIDIAL / BALIKAN DEUI").attr('onclick', 'location.reload()').css('background', 'var(--danger)');
+                } else {
+                    $('#res-title').text("WILUJENG, ANJEUN LULUS!").css('color', 'green');
+                    $('#p-skor').css('color', 'var(--primary)');
+                    $('#res-msg').html(`<b style="color:green">Alhamdulillah! Peunteun anjeun parantos cekap.</b>`);
+                    $('#btn-hasil-aksi').text("KALUAR SISTEM").attr('onclick', 'location.reload()').css('background', 'var(--primary)');
+                }
+
+                $('#result').fadeIn().css('display','flex');
                 if(document.exitFullscreen) document.exitFullscreen();
-            }).fail(function() {
-                alert("Gagal ngirim! Cek sinyal internet.");
-                $('#btn-submit').prop('disabled', false).text("KIRIM JAWABAN");
             });
         }
     </script>
