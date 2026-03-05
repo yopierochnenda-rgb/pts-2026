@@ -9,48 +9,41 @@
     <style>
         :root { --primary: #1a73e8; --danger: #ff0000; --success: #1e8e3e; }
         * { box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #f0f2f5; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #333; }
         
-        /* Notifikasi Peringatan */
-        #notif-p { position: fixed; top: 0; width: 100%; background: var(--danger); color: white; text-align: center; padding: 12px; z-index: 5000; display: none; font-weight: bold; border-bottom: 2px solid white; box-shadow: 0 5px 10px rgba(0,0,0,0.2); }
+        #notif-p { position: fixed; top: 0; width: 100%; background: var(--danger); color: white; text-align: center; padding: 12px; z-index: 5000; display: none; font-weight: bold; border-bottom: 2px solid white; }
         
-        /* Tampilan Login */
         #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .card { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
-        input, select, .btn-pro { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #eee; font-size: 16px; outline: none; transition: 0.3s; }
+        input, select, .btn-pro { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #eee; font-size: 16px; outline: none; }
         .btn-pro { background: var(--primary); color: white; border: none; font-weight: 800; cursor: pointer; }
-        .btn-pro:active { transform: scale(0.95); }
 
-        /* Wadah Soal Gambar */
-        .soal-container { width: 100%; height: 100vh; overflow-y: auto; padding-bottom: 180px; scroll-behavior: smooth; background: #525659; }
+        /* Wadah Soal - Tanpa Folder */
+        .soal-container { width: 100%; height: 100vh; overflow-y: auto; padding-bottom: 150px; scroll-behavior: smooth; background: #525659; }
         .soal-img { width: 100%; max-width: 800px; display: block; margin: 0 auto 10px auto; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
-        /* Tombol Layar */
         #btn-jawab { position: fixed; bottom: 25px; right: 20px; z-index: 999; background: var(--danger); color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        #btn-bantuan { position: fixed; bottom: 25px; left: 20px; z-index: 999; background: #25d366; color: white; padding: 12px 20px; border-radius: 50px; font-weight: bold; text-decoration: none; font-size: 12px; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        #btn-bantuan { position: fixed; bottom: 25px; left: 20px; z-index: 999; background: #25d366; color: white; padding: 12px 20px; border-radius: 50px; font-weight: bold; text-decoration: none; font-size: 12px; border: 2px solid white; }
 
-        /* Sidebar Jawaban */
-        .sidebar { position: fixed; bottom: -100%; left: 0; width: 100%; height: 65vh; background: white; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 25px 25px 0 0; display: flex; flex-direction: column; box-shadow: 0 -10px 25px rgba(0,0,0,0.2); }
+        .sidebar { position: fixed; bottom: -100%; left: 0; width: 100%; height: 65vh; background: white; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 25px 25px 0 0; display: flex; flex-direction: column; }
         .sidebar.open { bottom: 0; }
         
-        .nav-grid { display: flex; overflow-x: auto; padding: 15px; gap: 10px; border-bottom: 1px solid #eee; scrollbar-width: none; }
-        .nav-grid::-webkit-scrollbar { display: none; }
-        .nav-btn { min-width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; font-size: 14px; cursor: pointer; }
+        .nav-grid { display: flex; overflow-x: auto; padding: 15px; gap: 10px; border-bottom: 1px solid #eee; }
+        .nav-btn { min-width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
         .nav-btn.active { background: var(--primary); color: white; border: 2px solid #000; }
         .nav-btn.filled { background: var(--success); color: white; }
 
         .opt-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
         .opt-row { display: flex; gap: 10px; width: 100%; max-width: 500px; }
-        .opt-btn { flex: 1; padding: 18px 0; border: 2px solid #ddd; border-radius: 12px; font-weight: 800; font-size: 22px; text-align: center; background: white; cursor: pointer; }
-        .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        .opt-btn { flex: 1; padding: 18px 0; border: 2px solid #ddd; border-radius: 12px; font-weight: 800; font-size: 22px; text-align: center; background: white; }
+        .opt-btn.selected { background: var(--primary); color: white; }
 
-        /* Layar Hasil */
         #result { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; }
     </style>
 </head>
 <body>
 
-    <div id="notif-p">⚠️ PELANGGARAN! AKTIVITAS KACATET!</div>
+    <div id="notif-p">⚠️ ULAH PINDAH TAB!</div>
 
     <div id="login-overlay">
         <div class="card">
@@ -60,7 +53,7 @@
                 <button class="btn-pro" onclick="cekSiswa()" id="btn-cek">MASUK SISTEM</button>
             </div>
             <div id="box-mulai" style="display:none;">
-                <p>Wilujeng Sumping, <br><b id="nami-txt" style="font-size:18px; color:var(--primary);"></b></p>
+                <p>Nami: <b id="nami-txt" style="color:var(--primary);"></b></p>
                 <select id="mapel">
                     <option value="sunda">Basa Sunda</option>
                     <option value="seni">Seni Budaya</option>
@@ -71,24 +64,17 @@
     </div>
 
     <div id="result">
-        <h2 id="res-h">HASIL UJIAN</h2>
-        <h1 id="res-skor" style="font-size: 90px; margin:10px 0;">0</h1>
-        <p><b id="res-nami"></b></p>
-        <p id="res-msg"></p>
-        <button class="btn-pro" style="max-width:280px;" onclick="location.reload()">KALUAR</button>
+        <h1 id="res-skor" style="font-size: 80px; margin:0;">0</h1>
+        <button class="btn-pro" style="max-width:200px;" onclick="location.reload()">KALUAR</button>
     </div>
 
-    <div class="soal-container" id="area-soal">
-        <div style="padding: 100px 20px; text-align: center; color: #fff;">
-            Soal bakal munjul di dieu saatos Akang klik Mimitian...
-        </div>
-    </div>
+    <div class="soal-container" id="area-soal"></div>
 
     <a id="btn-bantuan" href="https://wa.me/6282126545204" target="_blank">💬 BANTUAN</a>
     <button id="btn-jawab" onclick="$('.sidebar').toggleClass('open')">📝 JAWABAN</button>
 
     <div class="sidebar">
-        <div style="padding:10px; text-align:center" onclick="$('.sidebar').removeClass('open')">
+        <div style="padding:15px; text-align:center" onclick="$('.sidebar').removeClass('open')">
             <div style="width:40px; height:5px; background:#ddd; border-radius:10px; display:inline-block"></div>
         </div>
         <div class="nav-grid" id="nav"></div>
@@ -105,7 +91,6 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLXeaFaQayA7ZL0mQ4-KvJX_HBcl5yQ6dUoOkl96YglLJjutd_QzXzmNo51cG5LBVu_Q/exec";
         let user = {}, cheats = 0, total = 25;
 
-        // 1. Cek Siswa
         function cekSiswa() {
             const val = $('#nis').val();
             if(!val) return alert("Eusian NIS!");
@@ -116,8 +101,6 @@
                     $('#box-login').hide(); 
                     $('#nami-txt').text(res.nami); 
                     $('#box-mulai').fadeIn();
-                    const waMsg = window.encodeURIComponent(`Pak, abdi ${res.nami} (NIS: ${val}) aya kendala soal.`);
-                    $('#btn-bantuan').attr('href', `https://wa.me/6282126545204?text=${waMsg}`);
                 } else { 
                     alert("NIS Teu Kapendak!"); 
                     $('#btn-cek').prop('disabled', false).text("MASUK SISTEM"); 
@@ -125,29 +108,25 @@
             });
         }
 
-        // 2. Mulai Ujian (Sistem Maca Gambar dina Folder soal/)
         function mulai() {
             $('#login-overlay').fadeOut();
-            const mp = $('#mapel').val(); // 'sunda' atanapi 'seni'
+            const mp = $('#mapel').val();
             let area = $('#area-soal');
             area.html(''); 
 
-            // SETTING JUMLAH HALAMAN SOAL (Gantos angka 5 mun soalna leuwih/kurang)
+            // JUMLAH HALAMAN (Ganti mun kurang/leuwih)
             let jmlHalaman = 5; 
-
             for(let i=1; i<=jmlHalaman; i++) {
-                // Maca file: soal/sunda-1.jpg, soal/sunda-2.jpg, jsb.
-                area.append(`<img src="soal/${mp}-${i}.jpg" class="soal-img" alt="Halaman ${i}" loading="lazy" onerror="this.src='https://via.placeholder.com/800x1200?text=Gambar+Teu+Kapendak'">`);
+                // IEU JALURNA LANGSUNG KA FILE (TANPA FOLDER)
+                area.append(`<img src="${mp}-${i}.jpg" class="soal-img" onerror="this.src='https://via.placeholder.com/800x1200?text=File+Teu+Kapendak'">`);
             }
 
-            // Bangun Tombol Nomer
             let h = ''; 
             for(let i=1; i<=total; i++) h += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
             $('#nav').html(h); 
             buka(1);
         }
 
-        // 3. Navigasi Jawaban
         function buka(n) {
             $('.nav-btn').removeClass('active'); 
             $(`#n-${n}`).addClass('active');
@@ -162,7 +141,6 @@
             if(el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         }
 
-        // 4. Pilih Jawaban
         function pilih(n, v) {
             $(`#n-${n}`).addClass('filled').data('ans', v);
             $('.opt-btn').removeClass('selected'); 
@@ -171,17 +149,16 @@
             if(n < total) setTimeout(() => buka(n+1), 300);
         }
 
-        // 5. Sensor Anti-Nyontek
         window.onblur = () => { 
             if(!$('#login-overlay').is(':visible') && !$('#result').is(':visible')) { 
-                cheats++; $('#notif-p').slideDown(); alert("ULAH PINDAH TAB!"); 
+                cheats++; $('#notif-p').slideDown(); 
             } 
         };
 
-        // 6. Kirim Jawaban
         function kirim() {
-            if(!confirm("Kirim jawaban ayeuna?")) return;
-            window.onblur = null; $('#btn-kirim').prop('disabled', true).text("Ngirim...");
+            if(!confirm("Kirim jawaban?")) return;
+            window.onblur = null;
+            $('#btn-kirim').prop('disabled', true).text("Ngirim...");
             let j = ""; for(let i=1; i<=total; i++) j += $(`#n-${i}`).data('ans') || "-";
             $.post(SCRIPT_URL, { 
                 nami: user.nami, nis: user.nis, kelas: user.kelas, 
@@ -189,7 +166,6 @@
             }, function(res) {
                 let data = (typeof res === 'object') ? res : JSON.parse(res);
                 $('#res-skor').text(data.peunteun);
-                $('#res-nami').text(user.nami);
                 $('#result').fadeIn().css('display','flex');
             });
         }
