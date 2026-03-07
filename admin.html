@@ -11,7 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; background: #f4f7f6; padding: 20px; }
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        /* Jam di pojok katuhu luhur */
+        #clock { position: fixed; top: 10px; right: 20px; background: #1a73e8; color: white; padding: 10px 20px; border-radius: 50px; font-weight: 800; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; margin-top: 60px; }
         .stat-card { background: white; padding: 20px; border-radius: 15px; text-align: center; border-bottom: 5px solid #1a73e8; }
         .controls { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; }
@@ -24,44 +26,65 @@
     </style>
 </head>
 <body>
+    <div id="clock">00:00:00</div>
     <h2>RULES MONITORING</h2>
+    
     <div class="dashboard">
         <div class="stat-card"><h3>TOTAL SISWA</h3><span id="stat-total" style="font-size:30px; font-weight:800;">240</span></div>
         <div class="stat-card" style="border-color:green"><h3>PARANTOS BÉRÉS</h3><span id="stat-beres" style="font-size:30px; font-weight:800; color:green">0</span></div>
         <div class="stat-card" style="border-color:red"><h3>TEU ACAN</h3><span id="stat-belum" style="font-size:30px; font-weight:800; color:red">0</span></div>
     </div>
+
     <div class="controls">
-        <select id="filter-kelas" onchange="muatData()"><option value="">-- Sadaya Kelas --</option><option value="9A">9A</option><option value="9B">9B</option></select>
+        <select id="filter-kelas" onchange="muatData()">
+            <option value="">-- Sadaya Kelas --</option>
+            <option value="9A">9A</option><option value="9B">9B</option>
+            <option value="9C">9C</option><option value="9D">9D</option>
+            <option value="9G">9G</option><option value="9H">9H</option>
+        </select>
         <button class="btn" style="background:#1a73e8" onclick="muatData()">REFRESH</button>
         <button class="btn" style="background:#1e8e3e" onclick="exportExcel()">EXCEL</button>
         <button class="btn" style="background:#5f6368" onclick="exportPDF()">PDF</button>
     </div>
+
     <table>
         <thead><tr><th>WAKTU</th><th>NAMI</th><th>KELAS</th><th>SKOR</th><th>STATUS</th><th>CHEAT</th></tr></thead>
         <tbody id="tbody"></tbody>
     </table>
 
     <script>
+        // Jam Real-time
+        function updateClock() {
+            let now = new Date();
+            $('#clock').text(now.toLocaleTimeString('id-ID'));
+        }
+        setInterval(updateClock, 1000);
+
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLXeaFaQayA7ZL0mQ4-KvJX_HBcl5yQ6dUoOkl96YglLJjutd_QzXzmNo51cG5LBVu_Q/exec";
+        
         function muatData() {
             $('#tbody').html('<tr><td colspan="6" style="text-align:center">Nuju nyandak data...</td></tr>');
             $.getJSON(SCRIPT_URL + "?action=getRekap", function(data) {
-                let h = ""; let filtered = data.slice(1);
+                let h = ""; 
                 let filterKelas = $('#filter-kelas').val();
                 let count = 0;
-                filtered.forEach(row => {
-                    if(filterKelas && row[3] !== filterKelas) return;
+                
+                // data[0] biasana header, jadi dimimitian ti data[1]
+                for(let i=1; i<data.length; i++) {
+                    let row = data[i];
+                    if(filterKelas && row[3] !== filterKelas) continue;
                     count++;
                     let skor = parseInt(row[4]);
                     h += `<tr><td>${new Date(row[0]).toLocaleTimeString()}</td><td><b>${row[1]}</b></td><td>${row[3]}</td><td><b>${skor}</b></td><td><span class="badge ${skor>=85?'lulus':'remed'}">${skor>=85?'LULUS':'REMED'}</span></td><td>${row[5]>0?'⚠️ '+row[5]:'✅'}</td></tr>`;
-                });
+                }
                 $('#tbody').html(h);
-                $('#stat-beres').text(count); $('#stat-belum').text(240 - count);
+                $('#stat-beres').text(count); 
+                $('#stat-belum').text(240 - count);
             });
         }
         function exportExcel() { let wb = XLSX.utils.table_to_book(document.querySelector('table')); XLSX.writeFile(wb, "Rekap_Rules.xlsx"); }
         function exportPDF() { const { jsPDF } = window.jspdf; let doc = new jsPDF(); doc.autoTable({ html: 'table' }); doc.save("Rekap_Rules.pdf"); }
-        $(document).ready(muatData);
+        $(document).ready(function() { muatData(); updateClock(); });
     </script>
 </body>
 </html>
