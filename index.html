@@ -1,75 +1,201 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="su">
 <head>
     <meta charset="UTF-8">
-    <title>Ujian Online RULES</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PTS 2026 - RULES BRAND</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; padding: 15px; }
-        .card { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
-        .nav-btn { width: 40px; height: 40px; border-radius: 50%; background: #eee; display: inline-flex; align-items: center; justify-content: center; margin: 5px; cursor: pointer; }
-        .nav-btn.active { border: 2px solid green; }
-        .nav-btn.filled { background: green; color: white; }
-        #btn-kirim { width: 100%; padding: 15px; background: red; color: white; border: none; margin-top: 20px; display: none; }
+        :root { --primary: #1a73e8; --danger: #ff0000; --success: #1e8e3e; }
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #333; }
+        
+        /* Notifikasi Pelanggaran */
+        #notif-p { position: fixed; top: 0; width: 100%; background: var(--danger); color: white; text-align: center; padding: 12px; z-index: 5000; display: none; font-weight: bold; border-bottom: 2px solid white; }
+        
+        /* Overlay Login */
+        #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+        input, select, .btn-pro { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #eee; font-size: 16px; outline: none; }
+        .btn-pro { background: var(--primary); color: white; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .btn-pro:active { transform: scale(0.98); }
+
+        /* Container Soal JPG */
+        .soal-container { width: 100%; height: 100vh; overflow-y: auto; padding-bottom: 150px; scroll-behavior: smooth; background: #525659; }
+        .soal-img { width: 100%; max-width: 800px; display: block; margin: 0 auto 10px auto; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        /* Tombol Aksi */
+        #btn-jawab { position: fixed; bottom: 25px; right: 20px; z-index: 999; background: var(--danger); color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        #btn-bantuan { position: fixed; bottom: 25px; left: 20px; z-index: 999; background: #25d366; color: white; padding: 12px 20px; border-radius: 50px; font-weight: bold; text-decoration: none; font-size: 12px; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Sidebar Jawaban */
+        .sidebar { position: fixed; bottom: -100%; left: 0; width: 100%; height: 65vh; background: white; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 25px 25px 0 0; display: flex; flex-direction: column; }
+        .sidebar.open { bottom: 0; }
+        
+        .nav-grid { display: flex; overflow-x: auto; padding: 15px; gap: 10px; border-bottom: 1px solid #eee; }
+        .nav-btn { min-width: 45px; height: 45px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; cursor: pointer; }
+        .nav-btn.active { background: var(--primary); color: white; border: 2px solid #000; }
+        .nav-btn.filled { background: var(--success); color: white; }
+
+        .opt-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .opt-row { display: flex; gap: 10px; width: 100%; max-width: 500px; }
+        .opt-btn { flex: 1; padding: 18px 0; border: 2px solid #ddd; border-radius: 12px; font-weight: 800; font-size: 22px; text-align: center; background: white; cursor: pointer; }
+        .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Layar Hasil & Remedial */
+        #result { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; }
     </style>
 </head>
 <body>
-    <div class="card" id="login-box">
-        <h3>Login Siswa</h3>
-        <input type="text" id="nis" placeholder="Masukkan NIS..." style="width:100%; padding:10px;">
-        <button onclick="cekSiswa()" style="width:100%; padding:10px; margin-top:10px;">MASUK</button>
-    </div>
 
-    <div class="card" id="ujian-box" style="display:none;">
-        <img id="img-soal" style="width:100%;">
-        <div id="nav-container"></div>
-        <div style="display:flex; justify-content:space-around; margin:20px 0;">
-            <button onclick="pilih('A')">A</button><button onclick="pilih('B')">B</button>
-            <button onclick="pilih('C')">C</button><button onclick="pilih('D')">D</button>
-            <button onclick="pilih('E')">E</button>
+    <div id="notif-p">⚠️ ULAH PINDAH TAB! AKTIVITAS KACATET!</div>
+
+    <div id="login-overlay">
+        <div class="card">
+            <h1 style="color:var(--primary); margin:0 0 10px 0;">RULES EXAM</h1>
+            <div id="box-login">
+                <input type="number" id="nis" placeholder="Lebetkeun NIS..." inputmode="numeric">
+                <button class="btn-pro" onclick="cekSiswa()" id="btn-cek">MASUK SISTEM</button>
+            </div>
+            <div id="box-mulai" style="display:none;">
+                <p>Wilujeng Sumping, <br><b id="nami-txt" style="font-size:18px; color:var(--primary);"></b></p>
+                <select id="mapel">
+                    <option value="sunda">Basa Sunda</option>
+                    <option value="seni">Seni Budaya</option>
+                </select>
+                <button class="btn-pro" onclick="mulai()" style="background:var(--success)">MIMITIAN UJIAN</button>
+            </div>
         </div>
-        <button id="btn-kirim" onclick="kirim()">KIRIM JAWABAN</button>
     </div>
 
-<script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUFlEN_WAo4l90YYtXE8AnADYzfSgGIgbv_9FA87OL4CLBigCZqrPMx8NFQksSDh7svQ/exec";
-    let user = {}, currentNo = 1, answers = {}, cheats = 0;
+    <div id="result">
+        <h2 id="res-h">HASIL UJIAN</h2>
+        <h1 id="res-skor" style="font-size: 90px; margin:10px 0;">0</h1>
+        <p><b id="res-nami"></b></p>
+        <div id="res-msg" style="margin-bottom: 20px;"></div>
+        <button id="res-btn" class="btn-pro" style="max-width:280px; width:100%;" onclick="location.reload()">KALUAR</button>
+    </div>
 
-    for(let i=1; i<=25; i++) $('#nav-container').append(`<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`);
+    <div class="soal-container" id="area-soal"></div>
 
-    function cekSiswa() {
-        $.getJSON(SCRIPT_URL + "?action=checkNIS&nis=" + $('#nis').val(), res => {
-            if(res.found) { user = res; user.nis = $('#nis').val(); $('#login-box').hide(); $('#ujian-box').show(); buka(1); }
-            else alert("NIS Teu Kapendak!");
-        });
-    }
+    <a id="btn-bantuan" href="https://wa.me/6282126545204" target="_blank">💬 BANTUAN</a>
+    <button id="btn-jawab" onclick="$('.sidebar').toggleClass('open')">📝 JAWABAN</button>
 
-    function buka(n) {
-        currentNo = n;
-        $('.nav-btn').removeClass('active'); $(`#n-${n}`).addClass('active');
-        $('#img-soal').attr('src', `https://raw.githubusercontent.com/yopierochnenda-rgb/pts-2026/main/seni-${n}.jpg`);
-    }
+    <div class="sidebar">
+        <div style="padding:15px; text-align:center" onclick="$('.sidebar').removeClass('open')">
+            <div style="width:40px; height:5px; background:#ddd; border-radius:10px; display:inline-block"></div>
+        </div>
+        <div class="nav-grid" id="nav"></div>
+        <div class="opt-area">
+            <h3 id="no-txt" style="margin:0 0 15px 0; color:var(--primary);">Nomer 1</h3>
+            <div class="opt-row" id="opt"></div>
+        </div>
+        <div style="padding: 20px 30px 40px;">
+            <button id="btn-kirim" class="btn-pro" disabled onclick="kirim()" style="background:var(--success); margin:0; width:100%;">KIRIM JAWABAN</button>
+        </div>
+    </div>
 
-    function pilih(opsi) {
-        answers[currentNo] = opsi;
-        $(`#n-${currentNo}`).addClass('filled');
-        if(Object.keys(answers).length == 25) $('#btn-kirim').show();
-    }
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLXeaFaQayA7ZL0mQ4-KvJX_HBcl5yQ6dUoOkl96YglLJjutd_QzXzmNo51cG5LBVu_Q/exec";
+        let user = {}, cheats = 0, total = 25;
 
-    $(window).blur(() => { if($('#ujian-box').is(':visible')) cheats++; });
+        function cekSiswa() {
+            const val = $('#nis').val();
+            if(!val) return alert("Eusian NIS!");
+            $('#btn-cek').prop('disabled', true).text("Mariksa...");
+            $.getJSON(SCRIPT_URL + "?action=checkNIS&nis=" + val, res => {
+                if(res.found) { 
+                    user = res; user.nis = val; 
+                    $('#box-login').hide(); 
+                    $('#nami-txt').text(res.nami); 
+                    $('#box-mulai').fadeIn();
+                    const waTxt = window.encodeURIComponent(`Pak, abdi ${res.nami} (NIS: ${val}) aya kendala dina soal.`);
+                    $('#btn-bantuan').attr('href', `https://wa.me/6282126545204?text=${waTxt}`);
+                } else { 
+                    alert("NIS Teu Kapendak!"); 
+                    $('#btn-cek').prop('disabled', false).text("MASUK SISTEM"); 
+                }
+            });
+        }
 
-    function kirim() {
-        let jwb = Object.values(answers).join("-");
-        $.ajax({
-            url: SCRIPT_URL, method: "POST",
-            data: { action: 'kirimJawaban', nami: user.nami, nis: user.nis, kelas: user.kelas, mapel: 'SENI', jawaban: jwb, cheat: cheats },
-            success: (res) => {
-                let data = JSON.parse(res);
-                alert(data.nilai >= 85 ? "Lulus! Skor: " + data.nilai : "Remedial! Skor: " + data.nilai);
-                location.reload();
+        function mulai() {
+            $('#login-overlay').fadeOut();
+            const mp = $('#mapel').val();
+            let area = $('#area-soal');
+            area.html(''); 
+
+            // Gantos angka 5 mun halaman soal leuwih loba
+            let jmlHalaman = 5; 
+            for(let i=1; i<=jmlHalaman; i++) {
+                area.append(`<img src="${mp}-${i}.jpg" class="soal-img" onerror="this.src='https://via.placeholder.com/800x600?text=Soal+Halaman+${i}+Teu+Aya'">`);
             }
-        });
-    }
-</script>
+
+            let h = ''; 
+            for(let i=1; i<=total; i++) h += `<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`;
+            $('#nav').html(h); 
+            buka(1);
+        }
+
+        function buka(n) {
+            $('.nav-btn').removeClass('active'); 
+            $(`#n-${n}`).addClass('active');
+            $('#no-txt').text("Nomer " + n);
+            let h = ''; 
+            ['A','B','C','D','E'].forEach(v => {
+                let sel = ($(`#n-${n}`).data('ans') == v) ? 'selected' : '';
+                h += `<div class="opt-btn ${sel}" onclick="pilih(${n},'${v}')">${v}</div>`;
+            });
+            $('#opt').html(h);
+            const el = document.getElementById(`n-${n}`);
+            if(el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+
+        function pilih(n, v) {
+            $(`#n-${n}`).addClass('filled').data('ans', v);
+            $('.opt-btn').removeClass('selected'); 
+            $(`.opt-btn:contains(${v})`).addClass('selected');
+            if($('.filled').length >= total) $('#btn-kirim').prop('disabled', false);
+            if(n < total) setTimeout(() => buka(n+1), 300);
+        }
+
+        window.onblur = () => { 
+            if(!$('#login-overlay').is(':visible') && !$('#result').is(':visible')) { 
+                cheats++; $('#notif-p').slideDown(); alert("PERINGATAN! Ulah pindah aplikasi!"); 
+            } 
+        };
+
+        function kirim() {
+            if(!confirm("Yakin bade dikirim?")) return;
+            window.onblur = null;
+            $('#btn-kirim').prop('disabled', true).text("Nuju Ngirim...");
+            
+            let j = ""; for(let i=1; i<=total; i++) j += $(`#n-${i}`).data('ans') || "-";
+            
+            $.post(SCRIPT_URL, { 
+                nami: user.nami, nis: user.nis, kelas: user.kelas, 
+                mapel: $('#mapel').val().toUpperCase(), jawaban: j, cheat: cheats 
+            }, function(res) {
+                let data = (typeof res === 'object') ? res : JSON.parse(res);
+                let skor = parseInt(data.peunteun);
+                
+                $('#res-skor').text(skor);
+                $('#res-nami').text(user.nami);
+                
+                // NOTIFIKASI REMIDIAL 85
+                if(skor < 85) { 
+                    $('#res-h').text("HAMPURA!").css('color','red'); 
+                    $('#res-msg').html("<b style='color:red'>Peunteun handapeun KKM 85.<br>Mangga balikan deui supados lulus.</b>"); 
+                    $('#res-btn').text("BALIKAN DEUI").css('background','red'); 
+                } else { 
+                    $('#res-h').text("WILUJENG!").css('color','green'); 
+                    $('#res-msg').html("<b style='color:green'>Peunteun anjeun tos cekap.<br>Alus pisan!</b>"); 
+                    $('#res-btn').text("BÉRÉS").css('background','green');
+                }
+                
+                $('#result').fadeIn().css('display','flex');
+            });
+        }
+    </script>
 </body>
 </html>
