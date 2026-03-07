@@ -2,51 +2,44 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ujian RULES</title>
+    <title>Ujian Online RULES</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 10px; }
-        .soal-area img { width: 100%; max-width: 500px; display: block; margin: auto; }
-        .nav-area { display: flex; overflow-x: auto; gap: 10px; padding: 10px; border: 1px solid #ddd; margin: 10px 0; }
-        .nav-btn { min-width: 40px; height: 40px; border-radius: 50%; background: #eee; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .nav-btn.active { border: 2px solid #1e8e3e; }
-        .nav-btn.filled { background: #1e8e3e; color: white; }
-        .opt-area { display: flex; justify-content: space-around; padding: 20px; }
-        .opt-btn { padding: 15px 20px; border: 1px solid #333; cursor: pointer; }
-        #btn-kirim { width: 100%; padding: 15px; background: #ccc; border: none; }
-        #btn-kirim.aktif { background: #d93025; color: white; }
+        body { font-family: sans-serif; padding: 15px; }
+        .card { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        .nav-btn { width: 40px; height: 40px; border-radius: 50%; background: #eee; display: inline-flex; align-items: center; justify-content: center; margin: 5px; cursor: pointer; }
+        .nav-btn.active { border: 2px solid green; }
+        .nav-btn.filled { background: green; color: white; }
+        #btn-kirim { width: 100%; padding: 15px; background: red; color: white; border: none; margin-top: 20px; display: none; }
     </style>
 </head>
 <body>
-
-<div id="login">
-    <input type="number" id="nis" placeholder="NIS...">
-    <button onclick="cekSiswa()">LOGIN</button>
-</div>
-
-<div id="ujian" style="display:none;">
-    <div class="soal-area"><img id="img-soal"></div>
-    <div class="nav-area" id="nav-container"></div>
-    <div class="opt-area">
-        <div class="opt-btn" onclick="pilih('A')">A</div>
-        <div class="opt-btn" onclick="pilih('B')">B</div>
-        <div class="opt-btn" onclick="pilih('C')">C</div>
-        <div class="opt-btn" onclick="pilih('D')">D</div>
-        <div class="opt-btn" onclick="pilih('E')">E</div>
+    <div class="card" id="login-box">
+        <h3>Login Siswa</h3>
+        <input type="text" id="nis" placeholder="Masukkan NIS..." style="width:100%; padding:10px;">
+        <button onclick="cekSiswa()" style="width:100%; padding:10px; margin-top:10px;">MASUK</button>
     </div>
-    <button id="btn-kirim" onclick="kirim()">KIRIM JAWABAN</button>
-</div>
+
+    <div class="card" id="ujian-box" style="display:none;">
+        <img id="img-soal" style="width:100%;">
+        <div id="nav-container"></div>
+        <div style="display:flex; justify-content:space-around; margin:20px 0;">
+            <button onclick="pilih('A')">A</button><button onclick="pilih('B')">B</button>
+            <button onclick="pilih('C')">C</button><button onclick="pilih('D')">D</button>
+            <button onclick="pilih('E')">E</button>
+        </div>
+        <button id="btn-kirim" onclick="kirim()">KIRIM JAWABAN</button>
+    </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxsG1e3qDtg38ig4uWutulkQX3G--Q3gxS5JaAT1qtgbERNewn6fg1yvtLQUORiR6WxKA/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUFlEN_WAo4l90YYtXE8AnADYzfSgGIgbv_9FA87OL4CLBigCZqrPMx8NFQksSDh7svQ/exec";
     let user = {}, currentNo = 1, answers = {}, cheats = 0;
 
     for(let i=1; i<=25; i++) $('#nav-container').append(`<div class="nav-btn" id="n-${i}" onclick="buka(${i})">${i}</div>`);
 
     function cekSiswa() {
         $.getJSON(SCRIPT_URL + "?action=checkNIS&nis=" + $('#nis').val(), res => {
-            if(res.found) { user = res; user.nis = $('#nis').val(); $('#login').hide(); $('#ujian').show(); buka(1); }
+            if(res.found) { user = res; user.nis = $('#nis').val(); $('#login-box').hide(); $('#ujian-box').show(); buka(1); }
             else alert("NIS Teu Kapendak!");
         });
     }
@@ -60,10 +53,10 @@
     function pilih(opsi) {
         answers[currentNo] = opsi;
         $(`#n-${currentNo}`).addClass('filled');
-        if(Object.keys(answers).length == 25) $('#btn-kirim').addClass('aktif');
+        if(Object.keys(answers).length == 25) $('#btn-kirim').show();
     }
 
-    $(window).blur(() => { if($('#ujian').is(':visible')) cheats++; });
+    $(window).blur(() => { if($('#ujian-box').is(':visible')) cheats++; });
 
     function kirim() {
         let jwb = Object.values(answers).join("-");
@@ -72,8 +65,7 @@
             data: { action: 'kirimJawaban', nami: user.nami, nis: user.nis, kelas: user.kelas, mapel: 'SENI', jawaban: jwb, cheat: cheats },
             success: (res) => {
                 let data = JSON.parse(res);
-                if(data.nilai >= 85) alert("Lulus! Skor: " + data.nilai);
-                else alert("Remedial! Skor: " + data.nilai + ". Mangga ngerjakeun ulang.");
+                alert(data.nilai >= 85 ? "Lulus! Skor: " + data.nilai : "Remedial! Skor: " + data.nilai);
                 location.reload();
             }
         });
